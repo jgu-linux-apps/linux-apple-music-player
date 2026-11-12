@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.2.4 — 2026-11-06**
+**Version 0.2.5 — 2026-11-12**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -60,6 +60,11 @@ downloaded Electron runtime and the generated PNG icons, so it is not a one-step
 ## Note
 
 The app uses the public access key of Apple's own web player, as other third-party Apple Music clients do. This is not an official Apple API key; if Apple changes it, the app fetches the new one automatically, but Apple could block such use at any time.
+
+## Version history
+
+- **0.2.5** – license: the app is now published under the Freeware License (No Modifications), see `LICENSE`; free to use and share unmodified, modification is not permitted. No other changes in the app.
+- **0.2.4** and earlier: see the git history.
 
 ## License
 
