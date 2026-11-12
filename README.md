@@ -33,9 +33,11 @@ A fast, lightweight Apple Music player for Ubuntu. It has its own interface buil
 
 ## Install
 
+Download the newest `linux-apple-music-player_<version>_amd64.deb` from the [Releases page](https://github.com/jgu-linux-apps/linux-apple-music-player/releases/latest), then:
+
 ```bash
 cd ~/Downloads
-sudo apt install ./linux-apple-music-player_0.2.4_amd64.deb
+sudo apt install ./linux-apple-music-player_<version>_amd64.deb
 ```
 
 Start **Linux Apple Music Player** from the app grid and sign in with your Apple ID.
@@ -48,6 +50,12 @@ sudo apt remove linux-apple-music-player
 rm -rf ~/.config/linux-apple-music-player ~/.cache/linux-apple-music-player
 rm -f ~/.local/share/icons/hicolor/*/apps/linux-apple-music-player.png
 ```
+
+## Source code
+
+The source code is in the `src/` folder of this repository; the `.deb` packages are not kept in git but
+attached to [GitHub Releases](https://github.com/jgu-linux-apps/linux-apple-music-player/releases). `src/build.sh` is the packaging script used for the releases; it expects a
+downloaded Electron runtime and the generated PNG icons, so it is not a one-step build on another machine.
 
 ## Note
 

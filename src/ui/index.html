@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux Apple Music Player</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+  <aside id="side">
+    <div class="brand"><img src="assets/icon-light-256.png" class="logo light-only" alt=""><img src="assets/icon-dark-256.png" class="logo dark-only" alt=""><span>Apple Music</span></div>
+    <label class="search"><svg viewBox="0 0 24 24"><path d="M10 3a7 7 0 0 1 5.6 11.2l4.6 4.6-1.4 1.4-4.6-4.6A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z"/></svg><input id="q" type="search" autocomplete="off" spellcheck="false"></label>
+    <nav id="nav"></nav>
+    <div id="ver" class="ver"></div>
+  </aside>
+  <main id="main"><div id="view"></div></main>
+  <footer id="bar"></footer>
+  <div id="queue" class="drawer"></div>
+  <div id="cover"></div>
+  <div id="login"></div>
+  <div id="ctx" class="menu"></div>
+  <div id="toast"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
