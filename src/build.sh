@@ -9,6 +9,10 @@ cp -a app/{package.json,main.js,preload.js,mpris.js,sni.js,i18n.js,ui,assets,nod
 for s in 48 64 128 256 512; do mkdir -p $B/usr/share/icons/hicolor/${s}x${s}/apps; cp app/assets/icon-light-$s.png $B/usr/share/icons/hicolor/${s}x${s}/apps/$P.png; done
 for s in 22 32 48 64; do mkdir -p $B/usr/share/icons/hicolor/${s}x${s}/apps; for v in light dark; do convert app/assets/tray/$P-tray-$v.png -resize ${s}x${s} $B/usr/share/icons/hicolor/${s}x${s}/apps/$P-tray-$v.png; done; done
 mkdir -p $B/usr/share/icons/hicolor/scalable/apps && cp app/assets/icon-light.svg $B/usr/share/icons/hicolor/scalable/apps/$P.svg
+# icon follows light/dark also while the app is closed (session autostart helper)
+mkdir -p $B/usr/lib/$P $B/etc/xdg/autostart
+install -m 0755 app/packaging/icon-watch.sh $B/usr/lib/$P/icon-watch.sh
+install -m 0644 app/packaging/$P-icon.desktop $B/etc/xdg/autostart/$P-icon.desktop
 cat > $B/usr/bin/$P <<'X'
 #!/bin/sh
 # Launcher: detaches from the terminal so closing the terminal does not close the player.

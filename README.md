@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.2.6 — 2026-11-14**
+**Version 0.2.7 — 2026-11-14**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -64,6 +64,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.2.7** – the theme choice now shows in the tray menu (two items *Theme: System* / *Theme: Aurora*; the tray menu has no submenus). The app icon in the dock and app grid now switches light/dark with the system **also while the player is closed** (small helper started at login).
 - **0.2.6** – new **Aurora** theme (tray menu → Theme), the shared look of the JGu Linux Apps series: lavender / deep navy, violet-to-cyan gradients and glow. Light and dark follow the system; **System** keeps the original look.
 - **0.2.5** – license: the app is now published under the Freeware License (No Modifications), see `LICENSE`; free to use and share unmodified, modification is not permitted. No other changes in the app.
 - **0.2.4** and earlier: see the git history.

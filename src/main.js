@@ -44,15 +44,19 @@ const A = (f) => path.join(__dirname, 'assets', f);
 const dark = () => nativeTheme.shouldUseDarkColors;
 const appIcon = () => nativeImage.createFromPath(A(dark() ? 'icon-dark-256.png' : 'icon-light-256.png'));
 const trayIcon = () => nativeImage.createFromPath(A(`tray/${APP_ID}-tray-${dark() ? 'dark' : 'light'}.png`));
+// Same rule as packaging/icon-watch.sh (which also runs while the app is closed): dark = dark icon copied
+// to ~/.local/share/icons (wins over /usr/share), light = copies removed, so the package's light icon is used.
 function syncLauncherIcon() {
-  const variant = dark() ? 'dark' : 'light';
+  const isDark = dark();
   const base = path.join(os.homedir(), '.local', 'share', 'icons', 'hicolor');
+  const files = [[A('icon-dark.svg'), path.join(base, 'scalable', 'apps', APP_ID + '.svg')]]
+    .concat([48, 64, 128, 256, 512].map((s) => [A(`icon-dark-${s}.png`), path.join(base, `${s}x${s}`, 'apps', APP_ID + '.png')]));
   let changed = false;
-  for (const s of [48, 64, 128, 256, 512]) {
-    const dst = path.join(base, `${s}x${s}`, 'apps', APP_ID + '.png');
+  for (const [src, dst] of files) {
     try {
-      const a = fs.readFileSync(A(`icon-${variant}-${s}.png`));
       let b = null; try { b = fs.readFileSync(dst); } catch (_) {}
+      if (!isDark) { if (b) { fs.unlinkSync(dst); changed = true; } continue; }
+      const a = fs.readFileSync(src);
       if (!b || !a.equals(b)) { fs.mkdirSync(path.dirname(dst), { recursive: true }); fs.writeFileSync(dst, a); changed = true; }
     } catch (_) {}
   }
@@ -236,9 +240,13 @@ function rebuildTray() {
     { label: T.notifications, type: 'checkbox', checked: settings.notifications, click: () => toggleSetting('notifications') },
     { label: T.closeToTray, type: 'checkbox', checked: settings.closeToTray, click: () => toggleSetting('closeToTray') },
     { label: T.startHidden, type: 'checkbox', checked: settings.startHidden, click: () => toggleSetting('startHidden') },
-    { label: T.theme, submenu: ['system', 'aurora'].map((val) => ({
-      label: val === 'aurora' ? T.themeAurora : T.themeSystem, type: 'radio', checked: (settings.theme || 'system') === val,
-      click: () => { settings.theme = val; saveSettings(); send('theme', val); rebuildTray(); } })) },
+    { type: 'separator' },
+    // sni.js (our tray) draws a flat menu only — no submenus — so the theme choice is two radio items
+    ...['system', 'aurora'].map((val) => ({
+      label: `${T.theme}: ${val === 'aurora' ? T.themeAurora : T.themeSystem}`, type: 'radio',
+      checked: (settings.theme || 'system') === val,
+      click: () => { settings.theme = val; saveSettings(); send('theme', val); rebuildTray(); } })),
+    { type: 'separator' },
     { label: T.reload, click: loadUI },
     { label: T.signOut, click: signOutAndClear },
     { type: 'separator' },

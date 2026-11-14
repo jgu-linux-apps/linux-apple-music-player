@@ -78,7 +78,10 @@ function createSni({ id, title, onActivate, onScroll }) {
     p.label = new Variant('s', String(it.label || '').replace(/_/g, '__'));
     p.enabled = new Variant('b', it.enabled !== false);
     p.visible = new Variant('b', true);
-    if (it.type === 'checkbox') { p['toggle-type'] = new Variant('s', 'checkmark'); p['toggle-state'] = new Variant('i', it.checked ? 1 : 0); }
+    if (it.type === 'checkbox' || it.type === 'radio') {
+      p['toggle-type'] = new Variant('s', it.type === 'radio' ? 'radio' : 'checkmark');
+      p['toggle-state'] = new Variant('i', it.checked ? 1 : 0);
+    }
     if (it.icon) p['icon-data'] = new Variant('ay', it.icon);
     return p;
   }
@@ -195,7 +198,7 @@ function createSni({ id, title, onActivate, onScroll }) {
   // GNOME's AppIndicator extension cancels pending property fetches when LayoutUpdated signals
   // arrive in bursts, which leaves every item blank — so structure changes are rare and debounced.
   let pending = null, flushT = null;
-  function structure(list) { return list.map((t) => (t.type === 'separator' ? '-' : t.type === 'checkbox' ? 'c' : 'i')).join(''); }
+  function structure(list) { return list.map((t) => (t.type === 'separator' ? '-' : t.type === 'checkbox' ? 'c' : t.type === 'radio' ? 'r' : 'i')).join(''); }
   function flush() {
     flushT = null;
     const next = pending; pending = null;
