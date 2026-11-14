@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.2.9 — 2026-11-14**
+**Version 0.3.1 — 2026-11-14**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -8,6 +8,7 @@ A fast, lightweight Apple Music player for Ubuntu. It has its own interface buil
 
 - Own lightweight UI, styled like Apple Music for Windows: sidebar, content area and player bar
 - Two themes (tray menu → Theme): **System** and **Aurora**, the shared look of the JGu Linux Apps series; both follow light/dark
+- Two layouts (tray menu → Layout): **Dock** (default) – bigger text, a large player at the bottom with the cover, title and artist, progress along its whole width, a sidebar with groups that fold, counts and playlist folders, album headers on a blurred cover; **Classic** – the look before 0.3
 - Sign in with your Apple ID (Apple Music subscription required)
 - Home: recently played, heavy rotation and recommendations
 - Radio: your personal station and Apple Music live radio
@@ -64,6 +65,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.1** – new default layout **Dock** (tray menu → Layout): bigger and easier to read, a large player at the bottom (96 px cover, big title, artist and album, full-width progress), sidebar groups Apple Music / Library / Playlists that fold, counts next to Artists / Albums / Songs, playlists with cover thumbnails and in folders as in Apple Music, the playing playlist marked; album and playlist headers with a big title on a blurred cover, taller track rows. **Classic** keeps the previous look. The window now always opens when you start the player from the app menu; *Start with the system (hidden in tray)* (formerly *Start hidden in tray*) adds a login autostart entry that keeps it in the tray.
 - **0.2.9** – album and playlist covers grow with the window: on a large / full-screen window they are up to ~50% bigger (with sharper artwork and slightly larger titles); on smaller windows they stay as before.
 - **0.2.8** – own title bar: the window's top bar now follows the theme (Aurora: lavender / deep navy; System: the sidebar colour, close to the previous look), with the window buttons in the same colour.
 - **0.2.7** – the theme choice now shows in the tray menu (two items *Theme: System* / *Theme: Aurora*; the tray menu has no submenus). The app icon in the dock and app grid now switches light/dark with the system **also while the player is closed** (small helper started at login).

@@ -3,6 +3,7 @@
   'use strict';
   const cfg = await window.lamp.init();
   document.body.classList.toggle('aurora', cfg.theme === 'aurora');
+  document.body.classList.toggle('dock', cfg.layout !== 'classic');  // Dock is the default; tray → Layout: Classic
   const PL = cfg.lang === 'pl';
   const S = PL ? {
     search: 'Szukaj', appleMusic: 'Apple Music', home: 'Główna', library: 'Biblioteka', recent: 'Ostatnio dodane', artists: 'Wykonawcy',
@@ -15,7 +16,7 @@
     empty: 'Brak elementów', noResults: 'Brak wyników', inLibrary: 'Twoja biblioteka', added: 'Dodano do biblioteki', addedTo: 'Dodano do: ', queued: 'Dodano do kolejki',
     copied: 'Skopiowano link', songsN: (n) => n + (n === 1 ? ' utwór' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? ' utwory' : ' utworów'),
     min: ' min', title: 'Tytuł', artist: 'Wykonawca', album: 'Album', time: 'Czas', topSongs: 'Najpopularniejsze utwory', fullAlbums: 'Albumy', singles: 'Single i EP',
-    playErr: 'Nie można odtworzyć utworu', error: 'Błąd: ', volume: 'Głośność', repeat: 'Powtarzaj', prev: 'Poprzedni', next: 'Następny', close: 'Zamknij (Esc)', stations: 'Stacje', radio: 'Radio'
+    playErr: 'Nie można odtworzyć utworu', error: 'Błąd: ', volume: 'Głośność', repeat: 'Powtarzaj', prev: 'Poprzedni', next: 'Następny', close: 'Zamknij (Esc)', stations: 'Stacje', radio: 'Radio', albumK: 'Album', playlistK: 'Playlista'
   } : {
     search: 'Search', appleMusic: 'Apple Music', home: 'Home', library: 'Library', recent: 'Recently Added', artists: 'Artists',
     albums: 'Albums', songs: 'Songs', playlists: 'Playlists', recentlyPlayed: 'Recently Played', heavy: 'Heavy Rotation', madeForYou: 'Made for You',
@@ -27,7 +28,7 @@
     empty: 'Nothing here', noResults: 'No results', inLibrary: 'Your Library', added: 'Added to Library', addedTo: 'Added to: ', queued: 'Added to queue',
     copied: 'Link copied', songsN: (n) => n + (n === 1 ? ' song' : ' songs'),
     min: ' min', title: 'Title', artist: 'Artist', album: 'Album', time: 'Time', topSongs: 'Top Songs', fullAlbums: 'Albums', singles: 'Singles & EPs',
-    playErr: 'Cannot play this song', error: 'Error: ', volume: 'Volume', repeat: 'Repeat', prev: 'Previous', next: 'Next', close: 'Close (Esc)', stations: 'Stations', radio: 'Radio'
+    playErr: 'Cannot play this song', error: 'Error: ', volume: 'Volume', repeat: 'Repeat', prev: 'Previous', next: 'Next', close: 'Close (Esc)', stations: 'Stations', radio: 'Radio', albumK: 'Album', playlistK: 'Playlist'
   };
 
   // ======================= helpers =======================
@@ -66,6 +67,8 @@
     note: 'M10 3h10v4h-8v10.5A3.5 3.5 0 1 1 10 14.3z',
     list: 'M4 5h3v3H4zm5 0h11v3H9zm-5 5.5h3v3H4zm5 0h11v3H9zM4 16h3v3H4zm5 0h11v3H9z',
     expand: 'M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 4v-4h2v6h-6v-2z',
+    chev: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
+    folder: 'M3 6.5A2.5 2.5 0 0 1 5.5 4h4.2l2 2h6.8A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z',
     radio: 'M4 8h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1zm2.6-1.6L15.9 3l.7 1.9L10 7.3zM8 11a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm7 1v1.5h4V12zm0 3v1.5h4V15z'
   };
   function icon(name) {
@@ -208,43 +211,91 @@
     return h;
   }
 
-  // sidebar
+  // sidebar: groups that fold (the Dock layout shows the arrow; the state is kept per group)
   const nav = $('#nav');
-  const NAV = [
-    { sec: S.appleMusic },
-    { r: 'home', t: S.home, i: 'home' },
-    { r: 'radio', t: S.radio, i: 'radio' },
-    { sec: S.library },
-    { r: 'recent', t: S.recent, i: 'clock' },
-    { r: 'artists', t: S.artists, i: 'mic' },
-    { r: 'albums', t: S.albums, i: 'album' },
-    { r: 'songs', t: S.songs, i: 'note' },
-    { sec: S.playlists }
-  ];
-  const plBox = el('div');
-  for (const n of NAV) {
-    if (n.sec) nav.appendChild(el('div', { class: 'nsec', text: n.sec }));
-    else nav.appendChild(el('button', { class: 'nitem', 'data-r': n.r, onclick: () => go(n.r, {}, { root: true }) }, icon(n.i), el('span', { text: n.t })));
+  const store = (k, set) => { try { localStorage.setItem(k, JSON.stringify([...set])); } catch (_) {} };
+  const loadSet = (k) => { try { return new Set(JSON.parse(localStorage.getItem(k) || '[]')); } catch (_) { return new Set(); } };
+  const closedGroups = loadSet('lamp.closedGroups'), openFolders = loadSet('lamp.openFolders');
+  function group(key, title) {
+    const body = el('div', { class: 'gbody' }), cnt = el('span', { class: 'gcount' });
+    const g = el('div', { class: 'grp' + (closedGroups.has(key) ? ' closed' : '') });
+    g.append(el('button', { class: 'nsec', onclick: () => {
+      if (g.classList.toggle('closed')) closedGroups.add(key); else closedGroups.delete(key);
+      store('lamp.closedGroups', closedGroups);
+    } }, el('span', { text: title }), cnt, icon('chev')), body);
+    nav.appendChild(g);
+    return { body, cnt };
   }
-  nav.appendChild(plBox);
+  const navItem = (r, t, i) => el('button', { class: 'nitem', 'data-r': r, onclick: () => go(r, {}, { root: true }) },
+    icon(i), el('span', { text: t }), el('span', { class: 'ncount' }));
+  group('am', S.appleMusic).body.append(navItem('home', S.home, 'home'), navItem('radio', S.radio, 'radio'));
+  group('lib', S.library).body.append(navItem('recent', S.recent, 'clock'), navItem('artists', S.artists, 'mic'),
+    navItem('albums', S.albums, 'album'), navItem('songs', S.songs, 'note'));
+  const gPl = group('pl', S.playlists);
+  const plBox = gPl.body;
+  let nowPl = null;  // id of the playlist that is playing (marked in the sidebar)
   function markNav() {
     const root = stack[0];
-    nav.querySelectorAll('.nitem').forEach((b) => b.classList.toggle('on', !!(root && ((b.dataset.r === root.route && !b.dataset.pl) || (b.dataset.pl && root.args.id === b.dataset.pl)))));
+    nav.querySelectorAll('.nitem').forEach((b) => {
+      b.classList.toggle('on', !!(root && ((b.dataset.r === root.route && !b.dataset.pl) || (b.dataset.pl && root.args.id === b.dataset.pl))));
+      b.classList.toggle('playing', !!(nowPl && b.dataset.pl === nowPl));
+    });
   }
   let myPlaylists = [];
+  function plItem(p) {
+    const src = artUrl(p.artwork, 56);
+    return el('button', { class: 'nitem pl' + (src ? ' thumb' : ''), 'data-r': 'detail', 'data-pl': p.id, title: p.name,
+      onclick: () => go('detail', { id: p.id, type: p.type }, { root: true }), oncontextmenu: (e) => cardMenu(e, p) },
+    icon('list'), src ? img(src, 'th') : null, el('span', { text: p.name }), el('span', { class: 'eq' }, el('i'), el('i'), el('i')));
+  }
+  const isFolder = (r) => String(r.type || '').includes('folder');
+  function folderItem(r) {
+    const key = r.id, kids = el('div', { class: 'nest' });
+    let loaded = false;
+    const wrap = el('div', { class: 'fold' + (openFolders.has(key) ? ' open' : '') });
+    const fill = async () => { loaded = true; try { await fillFolder(kids, r.id); } catch (_) { loaded = false; } };
+    wrap.append(el('button', { class: 'nitem folder', title: (r.attributes || {}).name || '', onclick: () => {
+      const open = wrap.classList.toggle('open');
+      if (open) openFolders.add(key); else openFolders.delete(key);
+      store('lamp.openFolders', openFolders);
+      if (open && !loaded) fill();
+    } }, icon('folder'), el('span', { text: (r.attributes || {}).name || '' }), icon('chev')), kids);
+    if (openFolders.has(key)) fill();
+    return wrap;
+  }
+  async function fetchAll(path) {
+    let next = path; const out = [];
+    while (next && out.length < 500) { const r = await api(next, { fresh: true }); out.push(...(r.data || [])); next = r.next; }
+    return out;
+  }
+  async function fillFolder(box, id) {
+    const items = await fetchAll(lib(`/playlist-folders/${id}/children?limit=100`));
+    box.textContent = '';
+    for (const r of items) box.appendChild(isFolder(r) ? folderItem(r) : plItem(norm(r)));
+    markNav();
+  }
   async function loadPlaylists() {
     try {
-      let next = lib('/playlists?limit=100'); const out = [];
-      while (next && out.length < 500) { const r = await api(next, { fresh: true }); out.push(...(r.data || []).map(norm)); next = r.next; }
-      myPlaylists = out;
+      const out = (await fetchAll(lib('/playlists?limit=100'))).map(norm);
+      myPlaylists = out;  // all playlists (also those inside folders), used by "Add to Playlist"
+      gPl.cnt.textContent = out.length ? String(out.length) : '';
+      // Playlist folders as in Apple Music; without folders (or if the API refuses) a plain list
+      let root = [];
+      try { root = await fetchAll(lib('/playlist-folders/p.playlistsroot/children?limit=100')); } catch (_) {}
       plBox.textContent = '';
-      for (const p of out) {
-        plBox.appendChild(el('button', { class: 'nitem', 'data-r': 'detail', 'data-pl': p.id, title: p.name,
-          onclick: () => go('detail', { id: p.id, type: p.type }, { root: true }),
-          oncontextmenu: (e) => cardMenu(e, p) }, icon('list'), el('span', { text: p.name })));
-      }
+      if (root.some(isFolder)) for (const r of root) plBox.appendChild(isFolder(r) ? folderItem(r) : plItem(norm(r)));
+      else for (const p of out) plBox.appendChild(plItem(p));
       markNav();
     } catch (e) { console.warn('playlists', e); }
+  }
+  // numbers next to Artists / Albums / Songs (shown in the Dock layout)
+  function loadCounts() {
+    for (const r of ['artists', 'albums', 'songs']) {
+      api(lib(`/${r}?limit=1`), { fresh: true }).then((x) => {
+        const n = x && x.meta && x.meta.total; const c = nav.querySelector(`.nitem[data-r="${r}"] .ncount`);
+        if (c && n) c.textContent = n.toLocaleString(PL ? 'pl-PL' : 'en-US');
+      }).catch(() => {});
+    }
   }
   $('.brand span').textContent = cfg.name;
   $('#ver').append(el('div', { text: `${cfg.name} ${cfg.version} · ${cfg.date}` }), el('div', { class: 'credit', text: 'Created by: JGu' }), el('div', { class: 'credit', text: 'Supported by Claude' }));
@@ -298,7 +349,7 @@
     const wrap = el('div', { class: 'tracks' });
     const showArt = opts.art !== false;
     const showAlbum = opts.album !== false;
-    wrap.appendChild(el('div', { class: 'thead' + (showAlbum ? '' : ' noalbum'), style: showAlbum ? '' : 'grid-template-columns:38px minmax(0,2.6fr) minmax(0,1.6fr) 56px' },
+    wrap.appendChild(el('div', { class: 'thead' + (showAlbum ? '' : ' noalbum') },
       el('span', { text: '' }), el('span', { text: S.title }), el('span', { text: S.artist }), showAlbum ? el('span', { class: 'album', text: S.album }) : null, el('span', { style: 'text-align:right', text: S.time })));
     const list = el('div');
     wrap.appendChild(list);
@@ -413,9 +464,12 @@
       const artistRef = artistRel && artistRel.data && artistRel.data[0];
       const total = it.count || (tr.data || []).length;
       const meta = [it.genre, it.date ? String(it.date).slice(0, 4) : ''].filter(Boolean).join(' · ');
+      const a300 = artUrl(it.artwork, 300);
       const hero = el('div', { class: 'hero' },
-        el('div', { class: 'art' }, artUrl(it.artwork, 300) ? img(artUrl(it.artwork, 300), 'ok') : placeholder(kind)),
+        a300 ? el('div', { class: 'hbg', style: `background-image:url("${a300}")` }) : null,  // Dock: blurred cover behind the header
+        el('div', { class: 'art' }, a300 ? img(a300, 'ok') : placeholder(kind)),
         el('div', { class: 'info' },
+          el('div', { class: 'kick', text: (kind === 'playlist' ? S.playlistK : S.albumK) + (it.date ? ' · ' + String(it.date).slice(0, 4) : '') }),
           el('h1', { text: it.name }),
           it.artist ? el('div', { class: 'by', text: it.artist, onclick: () => { if (artistRef) go('artist', { id: artistRef.id, type: artistRef.type, name: it.artist }); } }) : null,
           meta ? el('div', { class: 'meta', text: meta }) : el('div', { class: 'meta' }),
@@ -527,12 +581,14 @@
     } catch (e) { console.warn('setQueue', e); toast(S.playErr); throw e; }
   }
   async function playItem(it, shuffle) {
+    nowPl = it.kind === 'playlist' ? it.id : null; markNav();
     if (!mk) return;
     try { await startQueue({ [queueKey(it)]: it.id }, !!shuffle); }
     catch (_) { if (it.catalogId && it.catalogId !== it.id) startQueue({ [queueKey(it)]: it.catalogId }, !!shuffle).catch(() => {}); }
   }
   async function playList(tracks, idx, ctx, shuffle) {
     if (!mk || !tracks.length) return;
+    nowPl = ctx && typeof ctx === 'object' && ctx.kind === 'playlist' ? ctx.id : null; markNav();
     if (ctx && typeof ctx === 'object' && (ctx.kind === 'album' || ctx.kind === 'playlist')) {
       try { await startQueue({ [ctx.kind]: ctx.id, startWith: shuffle ? undefined : idx }, !!shuffle); return; } catch (_) { /* fall back to song list */ }
     }
@@ -636,6 +692,7 @@
   function cmd(name, arg) {
     if (name === 'cover') { cover.open(true); return; }
     if (name === 'theme') { document.body.classList.toggle('aurora', arg === 'aurora'); return; }
+    if (name === 'layout') { document.body.classList.toggle('dock', arg === 'dock'); return; }
     if (!mk) return;
     try {
       switch (name) {
@@ -686,7 +743,8 @@
       npArt.textContent = '';
       if (i) { const src = artUrl(i.artwork, 60); npArt.appendChild(src ? img(src, 'ok') : placeholder('song')); }
       npT1.textContent = i ? i.title : S.nothing;
-      npT2.textContent = i ? [i.artist, i.album].filter(Boolean).join(' — ') : '';
+      npT2.textContent = '';
+      if (i) npT2.append(el('span', { class: 'ar', text: i.artist }), i.album ? el('span', { class: 'al' }, el('span', { class: 'sep', text: i.artist ? ' — ' : '' }), i.album) : null);
       refreshNowMarks();
       if (queue.isOpen()) queue.render();
     }
@@ -915,6 +973,7 @@
     sf = mk.storefrontId || mk.storefrontCountryCode || sf;
     try { if (!mk.storefrontId) { const r = await api('/v1/me/storefront'); sf = (r.data && r.data[0] && r.data[0].id) || sf; } } catch (_) {}
     loadPlaylists();
+    loadCounts();
     go(localStorage.getItem('lamp.start') || 'home', {}, { root: true });
   }
 

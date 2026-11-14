@@ -46,6 +46,14 @@ img { user-select: none; -webkit-user-drag: none; }
 .nitem span { overflow: hidden; text-overflow: ellipsis; }
 .nitem:hover { background: var(--hover); }
 .nitem.on { background: var(--sel); font-weight: 600; }
+/* sidebar groups, counts, playlist folders (the Dock layout below makes them bigger and foldable) */
+.nsec { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; }
+.nsec .gcount, .nsec svg, .ncount, .nitem .th, .nitem .eq { display: none; }
+.nitem.folder svg:last-child { margin-left: auto; width: 16px; height: 16px; color: var(--fg3); transform: rotate(-90deg); transition: transform .15s; }
+.nitem.folder svg:first-child { color: var(--fg2); }
+.fold.open > .nitem.folder svg:last-child { transform: none; }
+.fold:not(.open) > .nest { display: none; }
+.nest { padding-left: 14px; }
 .ver { font-size: 11px; color: var(--fg3); padding: 8px 18px 12px; line-height: 1.5; }
 .ver .credit:nth-child(2) { margin-top: 4px; }
 
@@ -115,6 +123,7 @@ img { user-select: none; -webkit-user-drag: none; }
 .paused .eq i { animation-play-state: paused; }
 @keyframes eq { 0%,100% { height: 4px; } 50% { height: 14px; } }
 .thead { display: grid; grid-template-columns: 38px minmax(0, 2.2fr) minmax(0, 1.4fr) minmax(0, 1.4fr) 56px; gap: 12px; padding: 6px 8px; color: var(--fg3); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.thead.noalbum { grid-template-columns: 38px minmax(0, 2.6fr) minmax(0, 1.6fr) 56px; }
 .foot { color: var(--fg2); font-size: 12.5px; padding: 14px 32px; }
 .sentinel { height: 40px; display: grid; place-items: center; }
 .spin { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--sel); border-top-color: var(--accent); animation: rot .8s linear infinite; }
@@ -279,3 +288,110 @@ body.aurora .chip.on { background: var(--grad); color: #fff; }
 body.aurora .menu button:hover { background: var(--grad); }
 body.aurora .card:hover .art { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent2) 60%, transparent), var(--shadow); }
 body.aurora .search { background: var(--hover); border-color: var(--line); }
+
+/* ================= Dock layout (tray → Layout: Dock): bigger and easier to read, large player at the bottom ================= */
+body.dock { font-size: 15px; }
+.dock #app { grid-template-columns: 290px 1fr; grid-template-rows: 1fr 132px; }
+.dock .brand { padding: 18px 18px 10px; font-size: 15px; }
+.dock .brand .logo { width: 30px; height: 30px; }
+.dock .search { margin: 6px 16px 10px; height: 42px; border-radius: 12px; padding: 0 14px; font-size: 15px; }
+.dock .search svg { width: 18px; height: 18px; }
+.dock #nav { padding: 0 10px 14px; }
+.dock .nsec { font-size: 12px; letter-spacing: .09em; padding: 16px 10px 6px; border-radius: 6px; }
+.dock .nsec:hover { color: var(--fg2); }
+.dock .nsec .gcount { display: inline; font-weight: 600; letter-spacing: 0; }
+.dock .nsec .gcount:not(:empty)::before { content: "· "; }
+.dock .nsec svg { display: block; width: 16px; height: 16px; margin-left: auto; transition: transform .15s; }
+.dock .grp.closed .nsec svg { transform: rotate(-90deg); }
+.dock .grp.closed .gbody { display: none; }
+.dock .nitem { height: 42px; padding: 0 12px; gap: 12px; font-size: 15.5px; border-radius: 11px; }
+.dock .nitem svg { width: 20px; height: 20px; }
+.dock .nitem.on { background: var(--accent); color: #fff; font-weight: 600; }
+.dock .nitem.on svg { color: #fff; }
+.dock .ncount { display: inline; margin-left: auto; font-size: 12.5px; color: var(--fg3); font-variant-numeric: tabular-nums; flex: none; }
+.dock .nitem.on .ncount { color: inherit; opacity: .8; }
+.dock .nitem.pl, .dock .nitem.folder { height: 40px; font-size: 15px; }
+.dock .nitem.thumb > svg:first-child { display: none; }
+.dock .nitem .th { display: block; width: 28px; height: 28px; border-radius: 7px; object-fit: cover; flex: none; background: var(--card); }
+.dock .nitem.playing { color: var(--accent); font-weight: 600; }
+.dock .nitem.playing .eq { display: inline-flex; margin-left: auto; flex: none; }
+.dock .nitem.on .eq i { background: currentColor; }
+.dock .nitem.on.playing { color: #fff; }
+.dock .nest { margin-left: 22px; padding-left: 6px; border-left: 1px solid var(--line); }
+.dock .ver { padding: 10px 20px 14px; font-size: 11.5px; }
+
+.dock .vhead { padding: 26px 34px 8px; }
+.dock .vhead h1 { font-size: 32px; }
+.dock .pad { padding: 8px 34px 40px; }
+.dock .section h2 { font-size: 22px; margin: 26px 0 14px; }
+.dock .row { grid-auto-columns: clamp(180px, 13.5vw, 280px); gap: 24px; }
+.dock .grid { --cw: clamp(190px, 13vw, 270px); gap: 26px 24px; }
+.dock .card .art { border-radius: 12px; }
+.dock .card .t { font-size: 15.5px; margin-top: 10px; }
+.dock .card .s { font-size: 14px; margin-top: 2px; }
+.dock .chip { font-size: 14px; padding: 7px 15px; }
+.dock .btn { height: 42px; padding: 0 22px; border-radius: 999px; font-size: 15px; }
+.dock .btn svg { width: 18px; height: 18px; }
+
+/* album / playlist header: big title on a blurred copy of the cover */
+.hero .hbg, .hero .kick { display: none; }
+.dock .hero { position: relative; isolation: isolate; overflow: hidden; padding: 30px 34px 34px; gap: 32px; }
+.dock .hero .hbg { display: block; position: absolute; inset: -60px; z-index: -1; background: center/cover no-repeat; filter: blur(60px) saturate(1.4); opacity: .35; }
+.dock .hero .art { width: 240px; height: 240px; border-radius: 16px; }
+.dock .hero .kick { display: block; font-size: 13px; font-weight: 700; letter-spacing: .12em; color: var(--fg2); text-transform: uppercase; margin-bottom: 6px; }
+.dock .hero h1 { font-size: 46px; letter-spacing: -.02em; }
+.dock .hero .by { font-size: 21px; }
+.dock .hero .meta { font-size: 14.5px; }
+.dock .hero .desc { font-size: 14.5px; }
+
+/* track rows: taller, bigger covers */
+.dock .tracks { padding: 6px 22px 40px; }
+.dock .thead, .dock .tr { grid-template-columns: 52px minmax(0, 2.2fr) minmax(0, 1.4fr) minmax(0, 1.4fr) 64px; gap: 14px; padding: 0 12px; }
+.dock .thead { padding: 8px 12px; font-size: 12px; }
+.dock .thead.noalbum, .dock .tr.noalbum { grid-template-columns: 52px minmax(0, 2.6fr) minmax(0, 1.6fr) 64px; }
+.dock .tr { height: 62px; border-radius: 12px; contain-intrinsic-size: auto 62px; }
+.dock .tr:nth-child(odd) { background: transparent; }
+.dock .tr:hover { background: var(--hover); }
+.dock .tr.sel { background: var(--sel); }
+.dock .tr.now { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.dock .tr.now .c.title { font-weight: 650; }
+.dock .tr .n { height: 46px; font-size: 14.5px; }
+.dock .tr .n img, .dock .tr .n > div { width: 46px !important; height: 46px !important; border-radius: 8px; }
+.dock .tr:hover .n .pb { border-radius: 8px; }
+.dock .tr .c { font-size: 14.5px; }
+.dock .tr .c.title { font-size: 15.5px; }
+.dock .tr .d { font-size: 14px; }
+@media (max-width: 980px) {
+  .dock .thead, .dock .tr { grid-template-columns: 52px minmax(0, 2fr) minmax(0, 1.4fr) 64px; }
+}
+
+/* the player: tall dock, progress along its whole top edge */
+.dock #bar { position: relative; grid-template-columns: minmax(260px, 1fr) minmax(360px, 1.2fr) minmax(260px, 1fr); gap: 28px; padding: 0 26px; }
+.dock .np { gap: 18px; }
+.dock .np .art { width: 96px; height: 96px; border-radius: 12px; box-shadow: var(--shadow); }
+.dock .np .t1 { font-size: 21px; font-weight: 700; }
+.dock .np .t2 > span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dock .np .t2 .ar { color: var(--accent); font-weight: 600; font-size: 16px; margin-top: 3px; }
+.dock .np .t2 .al { font-size: 13.5px; margin-top: 2px; }
+.dock .np .t2 .sep { display: none; }
+.dock .ctrls { gap: 22px; }
+.dock .ib { width: 40px; height: 40px; }
+.dock .ib svg { width: 22px; height: 22px; }
+.dock .ib.sm svg { width: 20px; height: 20px; }
+.dock .ib.big { width: 64px; height: 64px; background: var(--accent); color: #fff; opacity: 1; box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 40%, transparent); }
+.dock .ib.big:hover { background: var(--accent); filter: brightness(1.07); }
+.dock .ib.big svg { width: 30px; height: 30px; }
+body.aurora.dock .ib.big { background: var(--grad); }
+.dock .seek { max-width: 330px; justify-content: space-between; margin-top: 6px; }
+.dock .seek .tm { font-size: 12.5px; width: auto; }
+.dock #bar .seek input[type=range] { position: absolute; left: 0; right: 0; top: -3px; height: 6px; border-radius: 0;
+  background: linear-gradient(90deg, var(--accent), var(--accent2)) 0/var(--p, 0%) 100% no-repeat, var(--line); }
+.dock #bar .seek input[type=range]::-webkit-slider-thumb { opacity: 1; width: 14px; height: 14px; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,.35); }
+.dock .right { gap: 10px; }
+.dock .right .vol { width: 170px; }
+.dock .right .vol svg { width: 22px; height: 22px; }
+.dock .drawer { bottom: 132px; width: 400px; }
+.dock .qi img { width: 48px; height: 48px; border-radius: 8px; }
+.dock .qi .t1 { font-size: 15px; }
+.dock .qi .t2 { font-size: 13.5px; }
+.dock #toast { bottom: 152px; }

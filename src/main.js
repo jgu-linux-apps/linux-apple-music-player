@@ -32,7 +32,7 @@ const T = STR[lang];
 // ---------- settings ----------
 const cfgDir = path.join(app.getPath('appData'), APP_ID);
 const cfgFile = path.join(cfgDir, 'settings.json');
-const settings = Object.assign({ theme: 'system', notifications: false, closeToTray: true, startHidden: false, bounds: null, devToken: null, volume: 0.8 }, readJSON(cfgFile));
+const settings = Object.assign({ theme: 'system', layout: 'dock', notifications: false, closeToTray: true, startHidden: false, bounds: null, devToken: null, volume: 0.8 }, readJSON(cfgFile));
 function readJSON(f) { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (_) { return {}; } }
 function saveSettings() { try { fs.mkdirSync(cfgDir, { recursive: true }); fs.writeFileSync(cfgFile, JSON.stringify(settings, null, 2)); } catch (_) {} }
 
@@ -193,7 +193,8 @@ function createWindow() {
   win.on('resize', debounce(saveBounds, 800));
   win.on('move', debounce(saveBounds, 800));
   win.on('show', rebuildTray); win.on('hide', rebuildTray);
-  win.once('ready-to-show', () => { if (!settings.startHidden) win.show(); });
+  // hidden only when started with the system (autostart entry passes --hidden); from the app menu the window shows
+  win.once('ready-to-show', () => { if (!(settings.startHidden && process.argv.includes('--hidden'))) win.show(); });
   win.webContents.on('did-finish-load', () => { if (win.webContents.getURL().startsWith(UI_BASE)) releaseProtocol(); });
   win.webContents.on('did-fail-load', (_e, code, _d, url, isMain) => { if (isMain && code !== -3) setTimeout(loadUI, 3000); });
   win.webContents.on('render-process-gone', () => setTimeout(loadUI, 500));
@@ -232,7 +233,19 @@ function applyTrayIcon() {
   if (sni) sni.setIcon({ name: `${APP_ID}-tray-${v}`, themePath: A('tray'), pixmaps: argbPixmaps(A(`tray/${APP_ID}-tray-${v}.png`)) });
   else if (tray) tray.setImage(trayIcon());
 }
-function toggleSetting(k) { settings[k] = !settings[k]; saveSettings(); rebuildTray(); }
+function toggleSetting(k) { settings[k] = !settings[k]; saveSettings(); if (k === 'startHidden') applyAutostart(); rebuildTray(); }
+// "Start with the system (hidden in tray)": a login autostart entry that starts the player in the tray
+function applyAutostart() {
+  const dir = path.join(require('os').homedir(), '.config', 'autostart');
+  const file = path.join(dir, 'linux-apple-music-player.desktop');
+  try {
+    if (!settings.startHidden) { fs.rmSync(file, { force: true }); return; }
+    const entry = '[Desktop Entry]\nType=Application\nName=Linux Apple Music Player\nExec=/usr/bin/linux-apple-music-player --hidden\n'
+      + 'Icon=linux-apple-music-player\nX-GNOME-Autostart-enabled=true\nNoDisplay=true\n';
+    let cur = ''; try { cur = fs.readFileSync(file, 'utf8'); } catch (_) {}
+    if (cur !== entry) { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(file, entry); }
+  } catch (e) { console.warn('autostart', e); }
+}
 function rebuildTray() {
   if (!hasTray()) return;
   const playing = player.status === 'Playing';
@@ -259,6 +272,12 @@ function rebuildTray() {
       label: `${T.theme}: ${val === 'aurora' ? T.themeAurora : T.themeSystem}`, type: 'radio',
       checked: (settings.theme || 'system') === val,
       click: () => { settings.theme = val; saveSettings(); send('theme', val); applyTitleBar(); rebuildTray(); } })),
+    { type: 'separator' },
+    // layout: Dock (default: bigger, large player at the bottom, collapsible menu) or Classic (the look before 0.3)
+    ...['dock', 'classic'].map((val) => ({
+      label: `${T.layout}: ${val === 'dock' ? T.layoutDock : T.layoutClassic}`, type: 'radio',
+      checked: (settings.layout || 'dock') === val,
+      click: () => { settings.layout = val; saveSettings(); send('layout', val); rebuildTray(); } })),
     { type: 'separator' },
     { label: T.reload, click: loadUI },
     { label: T.signOut, click: signOutAndClear },
@@ -334,7 +353,7 @@ function notifyTrack(m, artFile) {
 // ---------- IPC ----------
 ipcMain.handle('lamp:init', () => ({
   lang, version: pkg.version, date: pkg.releaseDate, name: APP_NAME, mock: MOCK,
-  volume: settings.volume, theme: settings.theme
+  volume: settings.volume, theme: settings.theme, layout: settings.layout || 'dock'
 }));
 ipcMain.handle('lamp:token', async (_e, force) => {
   try { return { token: await getToken(!!force) }; } catch (e) { return { error: String(e && e.message || e) }; }
@@ -393,6 +412,7 @@ app.whenReady().then(async () => {
   } catch (e) { drmOk = false; console.warn('[drm] Widevine not ready:', e && e.message); }
 
   syncLauncherIcon();
+  applyAutostart();
   createWindow();
   if (!drmOk && !MOCK) setTimeout(() => dialog.showMessageBox(win, { type: 'warning', message: 'Widevine', detail: T.drmFail }), 2500);
 
