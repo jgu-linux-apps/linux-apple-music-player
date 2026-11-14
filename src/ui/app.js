@@ -254,7 +254,7 @@
     opts = opts || {};
     const round = it.kind === 'artist';
     const art = el('div', { class: 'art' });
-    const src = artUrl(it.artwork, opts.size || 200);
+    const src = artUrl(it.artwork, opts.size || 280); // covers grow to ~260 px on a large window
     if (src) art.appendChild(img(src)); else art.appendChild(placeholder(it.kind));
     if (it.kind !== 'artist') art.appendChild(el('button', { class: 'play', title: S.play, onclick: (e) => { e.stopPropagation(); playItem(it); } }, icon('play')));
     return el('div', { class: 'card' + (round ? ' round' : ''), onclick: () => open(it), oncontextmenu: (e) => cardMenu(e, it) },
@@ -385,7 +385,7 @@
   }
   ROUTES.recent = gridView(S.recent, lib('/recently-added?limit=25'));
   ROUTES.albums = gridView(S.albums, lib('/albums?limit=100'));
-  ROUTES.artists = gridView(S.artists, lib('/artists?limit=100&include=catalog'), { sub: '', size: 180 });
+  ROUTES.artists = gridView(S.artists, lib('/artists?limit=100&include=catalog'), { sub: '', size: 280 });
 
   ROUTES.songs = (node) => {
     head(S.songs, node);

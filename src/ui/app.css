@@ -56,8 +56,9 @@ img { user-select: none; -webkit-user-drag: none; }
 .back svg { width: 18px; height: 18px; }
 .pad { padding: 8px 32px 40px; }
 .section h2 { font-size: 20px; margin: 22px 0 10px; font-weight: 750; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cw, 170px), 1fr)); gap: 22px 18px; }
-.row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(160px, 180px); gap: 18px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; }
+/* Cover size grows with the window: today's size up to ~1300 px wide, up to ~240 px on a full-HD full screen */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--cw, clamp(170px, 11.5vw, 250px)), 1fr)); gap: 22px clamp(18px, 1.2vw, 24px); }
+.row { display: grid; grid-auto-flow: column; grid-auto-columns: clamp(160px, 12.5vw, 260px); gap: clamp(18px, 1.2vw, 24px); overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x proximity; }
 .row > * { scroll-snap-align: start; }
 .card { min-width: 0; cursor: pointer; content-visibility: auto; contain-intrinsic-size: 170px 230px; }
 .card .art { position: relative; border-radius: 9px; overflow: hidden; aspect-ratio: 1; background: var(--card); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
@@ -69,8 +70,8 @@ img { user-select: none; -webkit-user-drag: none; }
 .card .play svg { width: 18px; height: 18px; margin-left: 2px; }
 .card:hover .play { opacity: 1; transform: none; }
 .card:hover .art { box-shadow: var(--shadow); }
-.card .t { margin-top: 7px; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card .s { color: var(--fg2); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .t { margin-top: 7px; font-weight: 600; font-size: clamp(13px, .72vw, 15px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card .s { color: var(--fg2); font-size: clamp(12.5px, .68vw, 14px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card.round .t, .card.round .s { text-align: center; }
 
 .hero { display: flex; gap: 28px; align-items: flex-end; padding: 10px 32px 18px; }
