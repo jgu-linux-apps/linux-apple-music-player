@@ -239,3 +239,37 @@ input[type=range]:hover::-webkit-slider-thumb { opacity: 1; }
   .tr, .thead { grid-template-columns: 38px minmax(0, 2fr) minmax(0, 1.4fr) 56px; }
   .tr .c.album, .thead .album { display: none; }
 }
+
+/* ---- Aurora: wspólny motyw serii JGu Linux Apps (jasny = lawendowe szkło, ciemny = zorza na granacie) ---- */
+body.aurora {
+  --bg: #fbfaff; --bg2: #f3f0ff; --side: rgba(255,255,255,.55); --fg: #1f1a3a; --fg2: #6b6590; --fg3: #a6a1c4;
+  --line: rgba(124,92,255,.14); --hover: rgba(124,92,255,.08); --sel: rgba(124,92,255,.14);
+  --accent: #7c5cff; --accent2: #22b8e6; --card: #ece8fb; --shadow: 0 10px 30px rgba(124,92,255,.22);
+  --barbg: rgba(251,250,255,.86); --menu: #fbfaff; --grad: linear-gradient(90deg, #7c5cff, #22b8e6);
+}
+@media (prefers-color-scheme: dark) {
+  body.aurora {
+    --bg: #0c0e1a; --bg2: #121528; --side: rgba(255,255,255,.015); --fg: #ecebff; --fg2: #a3a1c8; --fg3: #6c6a90;
+    --line: rgba(255,255,255,.07); --hover: rgba(255,255,255,.05); --sel: rgba(168,85,247,.20);
+    --accent: #a855f7; --accent2: #22d3ee; --card: #171a2e; --shadow: 0 0 24px rgba(34,211,238,.18);
+    --barbg: rgba(14,16,32,.90); --menu: #161a2e; --grad: linear-gradient(90deg, #a855f7, #22d3ee);
+  }
+}
+body.aurora #app { background: linear-gradient(135deg, #f6f2ff 0%, #eef8ff 55%, #fff4f8 100%); }
+@media (prefers-color-scheme: dark) {
+  body.aurora #app { background: radial-gradient(ellipse at 10% -5%, rgba(34,211,238,.16), transparent 55%),
+                                 radial-gradient(ellipse at 100% 105%, rgba(168,85,247,.20), transparent 55%), #0c0e1a; }
+}
+body.aurora, body.aurora #main { background: transparent; }
+body.aurora .vhead { background: linear-gradient(color-mix(in srgb, var(--bg) 85%, transparent) 70%, transparent); }
+body.aurora .nitem svg { color: var(--accent); }
+body.aurora .nitem { transition: background .15s, box-shadow .15s; }
+body.aurora .nitem:hover:not(.on) { box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent2) 50%, transparent); }
+body.aurora .nitem.on { background: var(--grad); color: #fff; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 35%, transparent); }
+body.aurora .nitem.on svg { color: #fff; }
+body.aurora .btn { background: var(--grad); box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 35%, transparent); }
+body.aurora .btn.sec { background: var(--hover); box-shadow: none; }
+body.aurora .chip.on { background: var(--grad); color: #fff; }
+body.aurora .menu button:hover { background: var(--grad); }
+body.aurora .card:hover .art { box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--accent2) 60%, transparent), var(--shadow); }
+body.aurora .search { background: var(--hover); border-color: var(--line); }

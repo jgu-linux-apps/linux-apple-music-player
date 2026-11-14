@@ -32,7 +32,7 @@ const T = STR[lang];
 // ---------- settings ----------
 const cfgDir = path.join(app.getPath('appData'), APP_ID);
 const cfgFile = path.join(cfgDir, 'settings.json');
-const settings = Object.assign({ notifications: false, closeToTray: true, startHidden: false, bounds: null, devToken: null, volume: 0.8 }, readJSON(cfgFile));
+const settings = Object.assign({ theme: 'system', notifications: false, closeToTray: true, startHidden: false, bounds: null, devToken: null, volume: 0.8 }, readJSON(cfgFile));
 function readJSON(f) { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (_) { return {}; } }
 function saveSettings() { try { fs.mkdirSync(cfgDir, { recursive: true }); fs.writeFileSync(cfgFile, JSON.stringify(settings, null, 2)); } catch (_) {} }
 
@@ -236,6 +236,9 @@ function rebuildTray() {
     { label: T.notifications, type: 'checkbox', checked: settings.notifications, click: () => toggleSetting('notifications') },
     { label: T.closeToTray, type: 'checkbox', checked: settings.closeToTray, click: () => toggleSetting('closeToTray') },
     { label: T.startHidden, type: 'checkbox', checked: settings.startHidden, click: () => toggleSetting('startHidden') },
+    { label: T.theme, submenu: ['system', 'aurora'].map((val) => ({
+      label: val === 'aurora' ? T.themeAurora : T.themeSystem, type: 'radio', checked: (settings.theme || 'system') === val,
+      click: () => { settings.theme = val; saveSettings(); send('theme', val); rebuildTray(); } })) },
     { label: T.reload, click: loadUI },
     { label: T.signOut, click: signOutAndClear },
     { type: 'separator' },
@@ -310,7 +313,7 @@ function notifyTrack(m, artFile) {
 // ---------- IPC ----------
 ipcMain.handle('lamp:init', () => ({
   lang, version: pkg.version, date: pkg.releaseDate, name: APP_NAME, mock: MOCK,
-  volume: settings.volume
+  volume: settings.volume, theme: settings.theme
 }));
 ipcMain.handle('lamp:token', async (_e, force) => {
   try { return { token: await getToken(!!force) }; } catch (e) { return { error: String(e && e.message || e) }; }

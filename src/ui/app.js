@@ -2,6 +2,7 @@
 (async function () {
   'use strict';
   const cfg = await window.lamp.init();
+  document.body.classList.toggle('aurora', cfg.theme === 'aurora');
   const PL = cfg.lang === 'pl';
   const S = PL ? {
     search: 'Szukaj', appleMusic: 'Apple Music', home: 'Główna', library: 'Biblioteka', recent: 'Ostatnio dodane', artists: 'Wykonawcy',
@@ -634,6 +635,7 @@
 
   function cmd(name, arg) {
     if (name === 'cover') { cover.open(true); return; }
+    if (name === 'theme') { document.body.classList.toggle('aurora', arg === 'aurora'); return; }
     if (!mk) return;
     try {
       switch (name) {
