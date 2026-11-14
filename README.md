@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.3.1 — 2026-11-14**
+**Version 0.3.3 — 2026-11-14**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -65,6 +65,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.3** – new dark-mode app icon in the series style: the app's own symbol on a deep navy tile, the same as the other apps of the series.
 - **0.3.1** – new default layout **Dock** (tray menu → Layout): bigger and easier to read, a large player at the bottom (96 px cover, big title, artist and album, full-width progress), sidebar groups Apple Music / Library / Playlists that fold, counts next to Artists / Albums / Songs, playlists with cover thumbnails and in folders as in Apple Music, the playing playlist marked; album and playlist headers with a big title on a blurred cover, taller track rows. **Classic** keeps the previous look. The window now always opens when you start the player from the app menu; *Start with the system (hidden in tray)* (formerly *Start hidden in tray*) adds a login autostart entry that keeps it in the tray.
 - **0.2.9** – album and playlist covers grow with the window: on a large / full-screen window they are up to ~50% bigger (with sharper artwork and slightly larger titles); on smaller windows they stay as before.
 - **0.2.8** – own title bar: the window's top bar now follows the theme (Aurora: lavender / deep navy; System: the sidebar colour, close to the previous look), with the window buttons in the same colour.
