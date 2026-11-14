@@ -150,12 +150,25 @@ function getToken(force) {
 }
 
 // ---------- window ----------
+// Title bar: GNOME draws the system one and the app cannot colour it, so the window hides it and draws its
+// own 34 px strip (ui: #titlebar) with Electron's window buttons on top. The strip and the buttons get the
+// same colour: Aurora → lavender / navy, System → the sidebar colour, close to the original look.
+const TB_H = 34;
+function titleBarColors() {
+  const d = dark();
+  if (settings.theme === 'aurora') return d ? { color: '#0e1020', symbolColor: '#ecebff' } : { color: '#f1edff', symbolColor: '#1f1a3a' };
+  return d ? { color: '#19191b', symbolColor: '#f5f5f7' } : { color: '#f3f3f5', symbolColor: '#1d1d1f' };
+}
+function applyTitleBar() {
+  if (win && !win.isDestroyed() && win.setTitleBarOverlay) { try { win.setTitleBarOverlay(Object.assign({ height: TB_H }, titleBarColors())); } catch (_) {} }
+}
 function createWindow() {
   const b = settings.bounds || {};
   win = new BrowserWindow({
     width: b.width || 1280, height: b.height || 820, x: b.x, y: b.y,
     minWidth: 820, minHeight: 560,
     title: APP_NAME, icon: appIcon(), show: false, autoHideMenuBar: true,
+    titleBarStyle: 'hidden', titleBarOverlay: Object.assign({ height: TB_H }, titleBarColors()),
     backgroundColor: dark() ? '#1e1e20' : '#ffffff',
     webPreferences: {
       partition: PARTITION,
@@ -245,7 +258,7 @@ function rebuildTray() {
     ...['system', 'aurora'].map((val) => ({
       label: `${T.theme}: ${val === 'aurora' ? T.themeAurora : T.themeSystem}`, type: 'radio',
       checked: (settings.theme || 'system') === val,
-      click: () => { settings.theme = val; saveSettings(); send('theme', val); rebuildTray(); } })),
+      click: () => { settings.theme = val; saveSettings(); send('theme', val); applyTitleBar(); rebuildTray(); } })),
     { type: 'separator' },
     { label: T.reload, click: loadUI },
     { label: T.signOut, click: signOutAndClear },
@@ -366,6 +379,7 @@ nativeTheme.themeSource = 'system';
 nativeTheme.on('updated', () => {
   applyTrayIcon();
   if (win) { win.setIcon(appIcon()); win.setBackgroundColor(dark() ? '#1e1e20' : '#ffffff'); }
+  applyTitleBar();
   syncLauncherIcon();
 });
 

@@ -2,14 +2,14 @@
   --bg: #ffffff; --bg2: #f6f6f8; --side: #f3f3f5; --fg: #1d1d1f; --fg2: #6e6e73; --fg3: #a1a1a6;
   --line: rgba(0,0,0,.08); --hover: rgba(0,0,0,.05); --sel: rgba(0,0,0,.08);
   --accent: #f0388f; --accent2: #ff5f6d; --card: #e9e9ee; --shadow: 0 10px 30px rgba(0,0,0,.12);
-  --barbg: rgba(250,250,252,.92); --menu: #ffffff;
+  --barbg: rgba(250,250,252,.92); --menu: #ffffff; --tb: #f3f3f5;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #1e1e20; --bg2: #252528; --side: #19191b; --fg: #f5f5f7; --fg2: #a1a1a6; --fg3: #6e6e73;
     --line: rgba(255,255,255,.08); --hover: rgba(255,255,255,.06); --sel: rgba(255,255,255,.1);
-    --card: #2c2c30; --shadow: 0 10px 30px rgba(0,0,0,.5); --barbg: rgba(32,32,35,.94); --menu: #2a2a2d;
+    --card: #2c2c30; --shadow: 0 10px 30px rgba(0,0,0,.5); --barbg: rgba(32,32,35,.94); --menu: #2a2a2d; --tb: #19191b;
     color-scheme: dark;
   }
   .light-only { display: none !important; }
@@ -24,7 +24,12 @@ svg { fill: currentColor; }
 ::-webkit-scrollbar-thumb { background: var(--sel); border-radius: 10px; border: 3px solid transparent; background-clip: padding-box; }
 img { user-select: none; -webkit-user-drag: none; }
 
-#app { display: grid; height: 100vh; grid-template-columns: 236px 1fr; grid-template-rows: 1fr 74px; grid-template-areas: "side main" "bar bar"; }
+/* own title bar (main.js: titleBarStyle hidden + titleBarOverlay = window buttons on the right, same colour) */
+#titlebar { position: fixed; top: 0; left: 0; right: 0; height: 34px; z-index: 10000; -webkit-app-region: drag;
+  background: var(--tb); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: center;
+  font-size: 12.5px; font-weight: 600; color: var(--fg2); user-select: none; }
+#app { margin-top: 34px; }
+#app { display: grid; height: calc(100vh - 34px); grid-template-columns: 236px 1fr; grid-template-rows: 1fr 74px; grid-template-areas: "side main" "bar bar"; }
 #side { grid-area: side; background: var(--side); border-right: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
 #main { grid-area: main; overflow-y: auto; overflow-x: hidden; position: relative; contain: strict; }
 #bar { grid-area: bar; }
@@ -148,7 +153,7 @@ input[type=range]:hover::-webkit-slider-thumb { opacity: 1; }
 .right .vol svg { width: 18px; height: 18px; opacity: .7; flex: none; }
 
 /* queue drawer */
-.drawer { position: fixed; right: 0; top: 0; bottom: 74px; width: 360px; background: var(--bg); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+.drawer { position: fixed; right: 0; top: 34px; bottom: 74px; width: 360px; background: var(--bg); border-left: 1px solid var(--line); box-shadow: var(--shadow);
   transform: translateX(105%); transition: transform .22s ease; z-index: 30; display: flex; flex-direction: column; }
 .drawer.open { transform: none; }
 .drawer h3 { margin: 0; padding: 18px 18px 8px; font-size: 18px; display: flex; align-items: center; justify-content: space-between; }
@@ -174,7 +179,7 @@ input[type=range]:hover::-webkit-slider-thumb { opacity: 1; }
 #toast.show { opacity: 1; transform: translateX(-50%); }
 
 /* login */
-#login { position: fixed; inset: 0; z-index: 80; display: none; place-items: center; background: var(--bg); }
+#login { position: fixed; inset: 34px 0 0 0; z-index: 80; display: none; place-items: center; background: var(--bg); }
 #login.open { display: grid; }
 .lbox { text-align: center; max-width: 420px; padding: 30px; }
 .lbox img { width: 112px; height: 112px; }
@@ -184,7 +189,7 @@ input[type=range]:hover::-webkit-slider-thumb { opacity: 1; }
 .lbox .err { color: #e5484d; font-size: 13px; margin-top: 16px; white-space: pre-wrap; }
 
 /* cover view */
-#cover { position: fixed; inset: 0; z-index: 50; display: none; overflow: hidden; color: #fff; }
+#cover { position: fixed; inset: 34px 0 0 0; z-index: 50; display: none; overflow: hidden; color: #fff; }
 #cover.open { display: block; animation: fade .22s ease; }
 @keyframes fade { from { opacity: 0; transform: scale(1.01); } to { opacity: 1; transform: none; } }
 #cover .bg { position: absolute; inset: -80px; background: #2a2a2e center/cover no-repeat; filter: blur(70px) saturate(1.5); transform: scale(1.15); }
@@ -213,7 +218,7 @@ input[type=range]:hover::-webkit-slider-thumb { opacity: 1; }
 #cover .ib.on { color: #ff6b9a; }
 #cover .vol { display: flex; align-items: center; gap: 10px; opacity: .8; }
 #cover .vol svg { width: 18px; height: 18px; }
-#cover .lyrics { display: none; width: 100%; height: 100%; max-height: calc(100vh - 110px); overflow-y: auto;
+#cover .lyrics { display: none; width: 100%; height: 100%; max-height: calc(100vh - 144px); overflow-y: auto;
   -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 80%, transparent); }
 #cover .lyrics::-webkit-scrollbar { display: none; }
 #cover .withlyr .lyrics { display: block; }
@@ -245,14 +250,14 @@ body.aurora {
   --bg: #fbfaff; --bg2: #f3f0ff; --side: rgba(255,255,255,.55); --fg: #1f1a3a; --fg2: #6b6590; --fg3: #a6a1c4;
   --line: rgba(124,92,255,.14); --hover: rgba(124,92,255,.08); --sel: rgba(124,92,255,.14);
   --accent: #7c5cff; --accent2: #22b8e6; --card: #ece8fb; --shadow: 0 10px 30px rgba(124,92,255,.22);
-  --barbg: rgba(251,250,255,.86); --menu: #fbfaff; --grad: linear-gradient(90deg, #7c5cff, #22b8e6);
+  --barbg: rgba(251,250,255,.86); --menu: #fbfaff; --grad: linear-gradient(90deg, #7c5cff, #22b8e6); --tb: #f1edff;
 }
 @media (prefers-color-scheme: dark) {
   body.aurora {
     --bg: #0c0e1a; --bg2: #121528; --side: rgba(255,255,255,.015); --fg: #ecebff; --fg2: #a3a1c8; --fg3: #6c6a90;
     --line: rgba(255,255,255,.07); --hover: rgba(255,255,255,.05); --sel: rgba(168,85,247,.20);
     --accent: #a855f7; --accent2: #22d3ee; --card: #171a2e; --shadow: 0 0 24px rgba(34,211,238,.18);
-    --barbg: rgba(14,16,32,.90); --menu: #161a2e; --grad: linear-gradient(90deg, #a855f7, #22d3ee);
+    --barbg: rgba(14,16,32,.90); --menu: #161a2e; --grad: linear-gradient(90deg, #a855f7, #22d3ee); --tb: #0e1020;
   }
 }
 body.aurora #app { background: linear-gradient(135deg, #f6f2ff 0%, #eef8ff 55%, #fff4f8 100%); }
