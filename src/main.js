@@ -43,10 +43,11 @@ try { fs.mkdirSync(cacheDir, { recursive: true }); } catch (_) {}
 const A = (f) => path.join(__dirname, 'assets', f);
 const dark = () => nativeTheme.shouldUseDarkColors;
 const appIcon = () => nativeImage.createFromPath(A(dark() ? 'icon-dark-256.png' : 'icon-light-256.png'));
-// The tray icon name changes when the artwork changes (tray3 = record with a note, 0.3.7): GNOME Shell keeps themed
-// icons by name for the whole session, so a new name makes it read the new file without logging out.
-const TRAY = `${APP_ID}-tray3`;
-const trayIcon = () => nativeImage.createFromPath(A(`tray/${TRAY}-${dark() ? 'dark' : 'light'}.png`));
+// Tray: the dock icon's record (black vinyl, red label, white note) with a white rim, one picture for dark and light
+// panels. The name changes whenever the artwork changes (tray4, 0.3.9): GNOME Shell keeps themed icons by name for
+// the whole session, so a new name makes it read the new file without logging out.
+const TRAY = `${APP_ID}-tray4`;
+const trayIcon = () => nativeImage.createFromPath(A(`tray/${TRAY}.png`));
 // Same rule as packaging/icon-watch.sh (which also runs while the app is closed): dark = dark icon copied
 // to ~/.local/share/icons (wins over /usr/share), light = copies removed, so the package's light icon is used.
 function syncLauncherIcon() {
@@ -262,10 +263,8 @@ function argbPixmaps(file) {
   });
 }
 function applyTrayIcon() {
-  // A symbolic icon: GNOME paints it in the panel's own text colour, so it is readable on a dark or a light top
-  // bar whatever the app theme is (the top bar does not follow light/dark). The white pixels are only a fallback
-  // for hosts that cannot load named icons (the GNOME top bar is usually dark).
-  if (sni) sni.setIcon({ name: `${TRAY}-symbolic`, themePath: A('tray'), pixmaps: argbPixmaps(A(`tray/${TRAY}-dark.png`)) });
+  // full-colour icon, readable on dark and light top bars alike (the top bar does not follow the app theme)
+  if (sni) sni.setIcon({ name: TRAY, themePath: A('tray'), pixmaps: argbPixmaps(A(`tray/${TRAY}.png`)) });
   else if (tray) tray.setImage(trayIcon());
 }
 function toggleSetting(k) { applySetting(k, !settings[k]); }

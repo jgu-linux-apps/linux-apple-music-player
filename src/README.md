@@ -65,6 +65,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.9**: the tray shows the app's own icon: the black vinyl record with the red label and the white note, with a white rim, so it is clear on dark and light top bars alike. The 0.3.8 symbolic icon lost the note, because GNOME paints symbolic icons in a single colour.
 - **0.3.8**: the tray icon is a symbolic icon, so GNOME paints it in the top bar's own text colour: white on a dark bar, dark on a light one. In 0.3.7 it followed the app theme, so with a light theme and the usual dark top bar it was dark on dark.
 - **0.3.7**:
   - New tray icon that is easy to see at panel size: a solid record with a large note cut out, dark on light panels and white on dark ones. It replaces the 0.3.5 tray icon, which turned into a grey blob.
