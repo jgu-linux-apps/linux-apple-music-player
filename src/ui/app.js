@@ -22,7 +22,7 @@
     nothing: 'Nic nie gra', lyrics: 'Tekst', noLyrics: 'Brak tekstu dla tego utworu', loadingLyrics: 'Wczytywanie tekstu…', cover: 'Widok okładki',
     signInTitle: 'Witaj w Apple Music', signInText: 'Zaloguj się swoim Apple ID, aby słuchać muzyki z subskrypcji Apple Music.', signIn: 'Zaloguj się Apple ID',
     tokenErr: 'Nie udało się pobrać klucza Apple Music. Sprawdź połączenie z internetem.', retry: 'Spróbuj ponownie', loading: 'Wczytywanie…',
-    empty: 'Brak elementów', noResults: 'Brak wyników', inLibrary: 'Twoja biblioteka', added: 'Dodano do biblioteki', addedTo: 'Dodano do: ', queued: 'Dodano do kolejki',
+    empty: 'Brak elementów', noResults: 'Brak wyników', inLibrary: 'Twoja biblioteka', added: 'Dodano do biblioteki', addedTo: 'Dodano do: ', removePl: 'Usuń z playlisty', removedFrom: 'Usunięto z: ', queued: 'Dodano do kolejki',
     copied: 'Skopiowano link', songsN: (n) => n + (n === 1 ? ' utwór' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? ' utwory' : ' utworów'),
     min: ' min', title: 'Tytuł', artist: 'Wykonawca', album: 'Album', time: 'Czas', topSongs: 'Najpopularniejsze utwory', fullAlbums: 'Albumy', singles: 'Single i EP',
     sizer: 'Przeciągnij, aby zmienić szerokość · dwuklik lub Ctrl+B chowa i pokazuje pasek',
@@ -35,7 +35,7 @@
     nothing: 'Nothing playing', lyrics: 'Lyrics', noLyrics: 'No lyrics for this song', loadingLyrics: 'Loading lyrics…', cover: 'Cover view',
     signInTitle: 'Welcome to Apple Music', signInText: 'Sign in with your Apple ID to listen with your Apple Music subscription.', signIn: 'Sign in with Apple ID',
     tokenErr: 'Could not get the Apple Music key. Check your internet connection.', retry: 'Try again', loading: 'Loading…',
-    empty: 'Nothing here', noResults: 'No results', inLibrary: 'Your Library', added: 'Added to Library', addedTo: 'Added to: ', queued: 'Added to queue',
+    empty: 'Nothing here', noResults: 'No results', inLibrary: 'Your Library', added: 'Added to Library', addedTo: 'Added to: ', removePl: 'Remove from Playlist', removedFrom: 'Removed from: ', queued: 'Added to queue',
     copied: 'Link copied', songsN: (n) => n + (n === 1 ? ' song' : ' songs'),
     min: ' min', title: 'Title', artist: 'Artist', album: 'Album', time: 'Time', topSongs: 'Top Songs', fullAlbums: 'Albums', singles: 'Singles & EPs',
     sizer: 'Drag to resize · double-click or Ctrl+B hides and shows the sidebar',
@@ -186,6 +186,16 @@
 
   // ======================= navigation =======================
   const main = $('#main'), view = $('#view');
+  // M3 album/playlist page: mark it "stuck" when the column header reaches the top bar (CSS makes both solid)
+  main.addEventListener('scroll', () => {
+    for (const v of main.querySelectorAll('.m3')) {
+      const th = v.querySelector('.thead'), vh = v.querySelector(':scope > .vhead');
+      if (!th) continue;
+      const top = vh ? vh.offsetHeight : 0;
+      if (th.style.top !== top + 'px') th.style.top = top + 'px';   // the column header sits right under the top bar
+      v.classList.toggle('stuck', th.getBoundingClientRect().top <= main.getBoundingClientRect().top + top + 1);
+    }
+  }, { passive: true });
   let stack = [];
   const ROUTES = {};
   function go(route, args, opts) {
@@ -450,6 +460,15 @@
     const list = el('div');
     wrap.appendChild(list);
     const all = [];
+    // own, editable library playlist: rows get "Remove from Playlist"
+    const ownPl = opts.ctx && typeof opts.ctx === 'object' && opts.ctx.kind === 'playlist' && opts.ctx.lib &&
+      (opts.ctx.canEdit || myPlaylists.some((p) => p.id === opts.ctx.id && p.canEdit)) ? opts.ctx : null;
+    function drop(row, t) {
+      const i = all.indexOf(t); if (i >= 0) all.splice(i, 1);
+      if (selRow === row) selRow = null;
+      row.remove();
+      if (opts.onChange) opts.onChange();
+    }
     function add(items) {
       const frag = document.createDocumentFragment();
       for (const t of items) {
@@ -465,9 +484,9 @@
           el('div', { class: 'c', text: t.artist, title: t.artist }),
           showAlbum ? el('div', { class: 'c album link', text: t.album, title: t.album, onclick: (e) => { e.stopPropagation(); goAlbumOf(t); } }) : null,
           el('div', { class: 'd', text: t.duration ? fmt(t.duration / 1000) : '' }));
-        row.addEventListener('click', (e) => { select(row); if (e.target.closest('.pb')) playList(all, idx, opts.ctx); });
-        row.addEventListener('dblclick', () => playList(all, idx, opts.ctx));
-        row.addEventListener('contextmenu', (e) => { select(row); trackMenu(e, t); });
+        row.addEventListener('click', (e) => { select(row); if (e.target.closest('.pb')) playList(all, all.indexOf(t), opts.ctx); });
+        row.addEventListener('dblclick', () => playList(all, all.indexOf(t), opts.ctx));
+        row.addEventListener('contextmenu', (e) => { select(row); trackMenu(e, t, ownPl && t.lib ? () => removeFromPlaylist(t, ownPl, () => drop(row, t)) : null); });
         frag.appendChild(row);
       }
       list.appendChild(frag);
@@ -542,6 +561,12 @@
   };
 
   ROUTES.detail = (node, args) => {
+    // Home / search show your own playlists by their catalog id (pl.u-…): open the library copy instead,
+    // so its songs are library songs and the playlist can be edited (Remove from Playlist).
+    if (!String(args.type || '').startsWith('library-') && String(args.id).startsWith('pl.')) {
+      const own = myPlaylists.find((p) => ((p.raw && p.raw.attributes && p.raw.attributes.playParams) || {}).globalId === args.id);
+      if (own) args = { ...args, id: own.id, type: own.type };
+    }
     const isLib = String(args.type || '').startsWith('library-') || /^[lpi]\./.test(args.id);
     const kind = kindOf(args.type) || (args.id.startsWith('p.') || args.id.startsWith('pl.') ? 'playlist' : 'album');
     const base = isLib ? lib(`/${kind}s/${args.id}`) : cat(`/${kind}s/${args.id}`);
@@ -555,7 +580,7 @@
       const it = norm(raw);
       h.querySelector('h1').textContent = '';
       const tr = rel(raw, 'tracks') || { data: [] };
-      const tl = trackList([], { art: kind === 'playlist', album: kind === 'playlist', ctx: it });
+      const tl = trackList([], { art: kind === 'playlist', album: kind === 'playlist', ctx: it, onChange: () => updFoot() });
       const artistRel = rel(raw, 'artists');
       const artistRef = artistRel && artistRel.data && artistRel.data[0];
       const total = it.count || (tr.data || []).length;
@@ -705,6 +730,13 @@
     const id = it.catalogId || it.id;
     try { await api('/v1/me/library', { method: 'POST', params: { [`ids[${it.kind}s]`]: id } }); toast(S.added); } catch (e) { toast(S.error + e.message); }
   }
+  // Not in Apple's public API docs; music.apple.com uses the same call. mode=all removes every copy of the song.
+  async function removeFromPlaylist(t, pl, done) {
+    try {
+      await api(lib(`/playlists/${pl.id}/tracks`), { method: 'DELETE', params: { 'ids[library-songs]': t.id, mode: 'all' } });
+      memo.clear(); done(); toast(S.removedFrom + pl.name);
+    } catch (e) { toast(S.error + e.message); }
+  }
   async function addToPlaylist(t, pl) {
     const data = [{ id: t.lib ? t.id : (t.catalogId || t.id), type: t.lib ? 'library-songs' : 'songs' }];
     try { await api(lib(`/playlists/${pl.id}/tracks`), { method: 'POST', body: { data } }); toast(S.addedTo + pl.name); memo.clear(); } catch (e) { toast(S.error + e.message); }
@@ -733,7 +765,7 @@
   document.addEventListener('click', (e) => { if (!ctx.contains(e.target)) closeMenu(); });
   window.addEventListener('blur', closeMenu);
   const copy = (u) => { navigator.clipboard.writeText(u).then(() => toast(S.copied)).catch(() => {}); };
-  function trackMenu(e, t) {
+  function trackMenu(e, t, remove) {
     const editable = myPlaylists.filter((p) => p.canEdit);
     menu(e, [
       { label: S.play, onclick: () => playItem(t) },
@@ -742,6 +774,7 @@
       '-',
       !t.lib && t.catalogId ? { label: S.addLib, onclick: () => addToLibrary(t) } : null,
       editable.length ? { label: S.addPl, sub: editable.map((p) => ({ label: p.name, onclick: () => addToPlaylist(t, p) })) } : null,
+      remove ? { label: S.removePl, onclick: remove } : null,
       { label: S.goAlbum, onclick: () => goAlbumOf(t) },
       t.url ? { label: S.copyLink, onclick: () => copy(t.url) } : null
     ]);
