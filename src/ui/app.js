@@ -4,6 +4,15 @@
   const cfg = await window.lamp.init();
   document.body.classList.toggle('aurora', cfg.theme === 'aurora');
   document.body.classList.toggle('dock', cfg.layout !== 'classic');  // Dock is the default; tray → Layout: Classic
+  // System theme: the accent colour chosen in Ubuntu (Settings → Appearance), live; Apple pink only as a fallback
+  function setAccent(hex) {
+    const r = document.documentElement.style;
+    if (hex && /^#[0-9a-f]{6}$/i.test(hex)) {
+      r.setProperty('--accent', hex);
+      r.setProperty('--accent2', `color-mix(in srgb, ${hex} 62%, white)`);
+    } else { r.removeProperty('--accent'); r.removeProperty('--accent2'); }
+  }
+  setAccent(cfg.accent);
   const PL = cfg.lang === 'pl';
   const S = PL ? {
     search: 'Szukaj', appleMusic: 'Apple Music', home: 'Główna', library: 'Biblioteka', recent: 'Ostatnio dodane', artists: 'Wykonawcy',
@@ -68,6 +77,7 @@
     list: 'M4 5h3v3H4zm5 0h11v3H9zm-5 5.5h3v3H4zm5 0h11v3H9zM4 16h3v3H4zm5 0h11v3H9z',
     expand: 'M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 4v-4h2v6h-6v-2z',
     chev: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
+    gear: 'M19.1 12.9a7 7 0 0 0 0-1.8l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7 7 0 0 0-1.6-.9L14.4 3a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4l-.4 2.5a7 7 0 0 0-1.6.9l-2.4-1a.5.5 0 0 0-.6.2L2.7 8.9a.5.5 0 0 0 .1.6l2 1.6a7 7 0 0 0 0 1.8l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3c.1.2.4.3.6.2l2.4-1c.5.4 1 .7 1.6.9l.4 2.5c0 .2.3.4.5.4h3.8c.2 0 .5-.2.5-.4l.4-2.5a7 7 0 0 0 1.6-.9l2.4 1c.2.1.5 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z',
     folder: 'M3 6.5A2.5 2.5 0 0 1 5.5 4h4.2l2 2h6.8A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z',
     radio: 'M4 8h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1zm2.6-1.6L15.9 3l.7 1.9L10 7.3zM8 11a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm7 1v1.5h4V12zm0 3v1.5h4V15z'
   };
@@ -299,6 +309,54 @@
   }
   $('.brand span').textContent = cfg.name;
   $('#ver').append(el('div', { text: `${cfg.name} ${cfg.version} · ${cfg.date}` }), el('div', { class: 'credit', text: 'Created by: JGu' }), el('div', { class: 'credit', text: 'Supported by Claude' }));
+
+  // Settings: the same options as the tray menu, also reachable inside the window (bottom of the sidebar)
+  const prefs = (() => {
+    const T = cfg.T, st = Object.assign({}, cfg.settings);
+    const box = el('div', { id: 'prefs', class: 'sheet', onclick: (e) => { if (e.target === box) close(); } });
+    const card = el('div', { class: 'sheetcard', role: 'dialog' });
+    box.appendChild(card);
+    $('#app').appendChild(box);
+    const seg = (key, opts) => {
+      const w = el('div', { class: 'seg' });
+      opts.forEach(([v, t]) => w.appendChild(el('button', { 'data-v': v, text: t, onclick: () => set(key, v) })));
+      w.dataset.k = key;
+      return w;
+    };
+    const tog = (key, t) => el('label', { class: 'tog' }, el('span', { text: t }),
+      el('input', { type: 'checkbox', 'data-k': key, onchange: (e) => set(key, e.target.checked) }));
+    card.append(
+      el('div', { class: 'sheethead' }, el('h2', { text: T.settings }),
+        el('button', { class: 'ib', title: S.close, onclick: () => close() }, icon('close'))),
+      el('div', { class: 'psec', text: T.general }),
+      el('div', { class: 'prow' }, el('span', { text: T.theme }), seg('theme', [['system', T.themeSystem], ['aurora', T.themeAurora]])),
+      el('div', { class: 'pnote', text: T.accentNote }),
+      el('div', { class: 'prow' }, el('span', { text: T.layout }), seg('layout', [['dock', T.layoutDock], ['classic', T.layoutClassic]])),
+      tog('notifications', T.notifications), tog('closeToTray', T.closeToTray), tog('startHidden', T.startHidden),
+      el('div', { class: 'psec', text: T.account }),
+      el('div', { class: 'prow btns' },
+        el('button', { class: 'btn sec', text: T.reload, onclick: () => window.lamp.reload() }),
+        el('button', { class: 'btn sec', text: T.signOut, onclick: () => { close(); window.lamp.action('signOut'); } })),
+      el('div', { class: 'pver', text: `${cfg.name} ${cfg.version} · Created by: JGu · Supported by Claude` }));
+    function sync(s) {
+      Object.assign(st, s || {});
+      card.querySelectorAll('.seg').forEach((w) => w.querySelectorAll('button').forEach((b) => b.classList.toggle('on', st[w.dataset.k] === b.dataset.v)));
+      card.querySelectorAll('input[data-k]').forEach((i) => { i.checked = !!st[i.dataset.k]; });
+    }
+    function set(key, v) {
+      st[key] = v; sync();
+      if (key === 'theme') document.body.classList.toggle('aurora', v === 'aurora');
+      if (key === 'layout') document.body.classList.toggle('dock', v === 'dock');
+      window.lamp.setting(key, v);
+    }
+    function open() { sync(); box.classList.add('open'); }
+    function close() { box.classList.remove('open'); }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && box.classList.contains('open')) { close(); e.stopPropagation(); } }, true);
+    const btn = el('button', { class: 'nitem setbtn', onclick: open }, icon('gear'), el('span', { text: T.settings }));
+    $('#side').insertBefore(btn, $('#ver'));
+    sync();
+    return { sync, open };
+  })();
 
   // ======================= renderers =======================
   function card(it, opts) {
@@ -693,6 +751,8 @@
     if (name === 'cover') { cover.open(true); return; }
     if (name === 'theme') { document.body.classList.toggle('aurora', arg === 'aurora'); return; }
     if (name === 'layout') { document.body.classList.toggle('dock', arg === 'dock'); return; }
+    if (name === 'accent') { setAccent(arg); return; }
+    if (name === 'settings') { prefs.sync(arg); return; }
     if (!mk) return;
     try {
       switch (name) {

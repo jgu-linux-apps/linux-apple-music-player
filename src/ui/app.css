@@ -395,3 +395,28 @@ body.aurora.dock .ib.big { background: var(--grad); }
 .dock .qi .t1 { font-size: 15px; }
 .dock .qi .t2 { font-size: 13.5px; }
 .dock #toast { bottom: 152px; }
+
+/* ---------- Settings (bottom of the sidebar + sheet) ---------- */
+.setbtn { width: auto; margin: 6px 10px 0; border-top: 1px solid var(--line); border-radius: 0; padding-top: 12px; }
+.setbtn svg { color: var(--fg2); }
+.setbtn:hover svg { color: var(--accent); }
+.sheet { position: fixed; inset: 0; z-index: 60; display: none; place-items: center; background: rgba(0,0,0,.32); }
+.sheet.open { display: grid; }
+.sheetcard { width: min(560px, calc(100vw - 48px)); max-height: calc(100vh - 80px); overflow: auto; background: var(--menu);
+  color: var(--fg); border-radius: 16px; box-shadow: 0 24px 70px rgba(0,0,0,.35); padding: 20px 24px 18px; }
+.sheethead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.sheethead h2 { font-size: 22px; font-weight: 700; }
+.psec { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--fg3); margin: 16px 0 8px; }
+.prow { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 8px 0; }
+.prow.btns { justify-content: flex-start; gap: 10px; }
+.pnote { font-size: 12px; color: var(--fg2); margin: -2px 0 6px; }
+.seg { display: inline-flex; background: var(--hover); border-radius: 9px; padding: 3px; gap: 2px; }
+.seg button { padding: 6px 12px; border-radius: 7px; font-size: 13px; color: var(--fg2); }
+.seg button.on { background: var(--accent); color: #fff; font-weight: 600; }
+.tog { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 9px 0; border-top: 1px solid var(--line); cursor: pointer; }
+.tog input { appearance: none; width: 40px; height: 22px; border-radius: 11px; background: var(--sel); position: relative; flex: none; cursor: pointer; transition: background .15s; }
+.tog input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: left .15s; }
+.tog input:checked { background: var(--accent); }
+.tog input:checked::after { left: 21px; }
+.pver { margin-top: 16px; font-size: 11px; color: var(--fg3); }
+body.aurora .seg button.on, body.aurora .tog input:checked { background: var(--grad); }

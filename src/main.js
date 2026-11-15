@@ -233,7 +233,51 @@ function applyTrayIcon() {
   if (sni) sni.setIcon({ name: `${APP_ID}-tray-${v}`, themePath: A('tray'), pixmaps: argbPixmaps(A(`tray/${APP_ID}-tray-${v}.png`)) });
   else if (tray) tray.setImage(trayIcon());
 }
-function toggleSetting(k) { settings[k] = !settings[k]; saveSettings(); if (k === 'startHidden') applyAutostart(); rebuildTray(); }
+function toggleSetting(k) { applySetting(k, !settings[k]); }
+// One place for every setting change, so the tray menu and the in-app Settings panel always agree.
+function applySetting(k, v) {
+  settings[k] = v; saveSettings();
+  if (k === 'startHidden') applyAutostart();
+  if (k === 'theme') { send('theme', v); applyTitleBar(); }
+  if (k === 'layout') send('layout', v);
+  send('settings', publicSettings());
+  rebuildTray();
+}
+const publicSettings = () => ({ theme: settings.theme || 'system', layout: settings.layout || 'dock',
+  notifications: !!settings.notifications, closeToTray: !!settings.closeToTray, startHidden: !!settings.startHidden });
+
+// ---------- system accent colour (GNOME 47+/Ubuntu: Settings → Appearance) ----------
+// Read through the XDG portal (org.freedesktop.appearance accent-color, RGB 0..1); fall back to the GNOME
+// accent name. The System theme uses it instead of a fixed pink.
+const ACCENT_NAMES = { blue: '#3584e4', teal: '#2190a4', green: '#3a944a', yellow: '#c88800', orange: '#ed5b00',
+  red: '#e62d42', pink: '#d56199', purple: '#9141ac', slate: '#6f8396' };
+function readAccent() {
+  const cp = require('child_process');
+  try {
+    const out = cp.execFileSync('gdbus', ['call', '--session', '--dest', 'org.freedesktop.portal.Desktop',
+      '--object-path', '/org/freedesktop/portal/desktop', '--method', 'org.freedesktop.portal.Settings.ReadOne',
+      'org.freedesktop.appearance', 'accent-color'], { timeout: 1500, encoding: 'utf8' });
+    const n = (out.match(/-?\d+(\.\d+)?(e-?\d+)?/g) || []).map(Number);
+    if (n.length >= 3 && n.slice(0, 3).every((x) => x >= 0 && x <= 1)) {
+      return '#' + n.slice(0, 3).map((x) => Math.round(x * 255).toString(16).padStart(2, '0')).join('');
+    }
+  } catch (_) {}
+  try {
+    const name = cp.execFileSync('gsettings', ['get', 'org.gnome.desktop.interface', 'accent-color'],
+      { timeout: 1500, encoding: 'utf8' }).trim().replace(/'/g, '');
+    if (ACCENT_NAMES[name]) return ACCENT_NAMES[name];
+  } catch (_) {}
+  return null;
+}
+let accent = null, accentWatch = null;
+function watchAccent() {
+  accent = readAccent();
+  try {
+    accentWatch = require('child_process').spawn('gsettings', ['monitor', 'org.gnome.desktop.interface', 'accent-color']);
+    accentWatch.stdout.on('data', () => { accent = readAccent(); send('accent', accent); });
+    accentWatch.on('error', () => { accentWatch = null; });
+  } catch (_) { accentWatch = null; }
+}
 // "Start with the system (hidden in tray)": a login autostart entry that starts the player in the tray
 function applyAutostart() {
   const dir = path.join(require('os').homedir(), '.config', 'autostart');
@@ -353,12 +397,23 @@ function notifyTrack(m, artFile) {
 // ---------- IPC ----------
 ipcMain.handle('lamp:init', () => ({
   lang, version: pkg.version, date: pkg.releaseDate, name: APP_NAME, mock: MOCK,
-  volume: settings.volume, theme: settings.theme, layout: settings.layout || 'dock'
+  volume: settings.volume, theme: settings.theme, layout: settings.layout || 'dock',
+  accent, settings: publicSettings(),
+  T: { settings: T.settings, general: T.general, account: T.account, theme: T.theme, themeSystem: T.themeSystem,
+    themeAurora: T.themeAurora, layout: T.layout, layoutDock: T.layoutDock, layoutClassic: T.layoutClassic,
+    notifications: T.notifications, closeToTray: T.closeToTray, startHidden: T.startHidden, reload: T.reload,
+    signOut: T.signOut, accentNote: T.accentNote }
 }));
 ipcMain.handle('lamp:token', async (_e, force) => {
   try { return { token: await getToken(!!force) }; } catch (e) { return { error: String(e && e.message || e) }; }
 });
-ipcMain.on('lamp:setting', (_e, k, v) => { if (['volume'].includes(k)) { settings[k] = v; saveSettings(); } });
+ipcMain.on('lamp:setting', (_e, k, v) => {
+  if (k === 'volume') { settings[k] = v; saveSettings(); return; }
+  if (k === 'theme' && ['system', 'aurora'].includes(v)) applySetting(k, v);
+  else if (k === 'layout' && ['dock', 'classic'].includes(v)) applySetting(k, v);
+  else if (['notifications', 'closeToTray', 'startHidden'].includes(k)) applySetting(k, !!v);
+});
+ipcMain.on('lamp:action', (_e, a) => { if (a === 'signOut') signOutAndClear(); });
 ipcMain.on('lamp:reload', () => loadUI());
 ipcMain.on('lamp:open-external', (_e, url) => { if (/^https:\/\//.test(url)) shell.openExternal(url); });
 ipcMain.on('lamp:state', async (_e, s) => {
@@ -394,6 +449,8 @@ ipcMain.on('lamp:state', async (_e, s) => {
 app.on('second-instance', showWindow);
 app.on('before-quit', () => { quitting = true; });
 app.on('window-all-closed', () => { if (quitting || !settings.closeToTray) app.quit(); });
+watchAccent();
+app.on('will-quit', () => { if (accentWatch) accentWatch.kill(); });
 nativeTheme.themeSource = 'system';
 nativeTheme.on('updated', () => {
   applyTrayIcon();

@@ -7,8 +7,8 @@ A fast, lightweight Apple Music player for Ubuntu. It has its own interface buil
 ## Features
 
 - Own lightweight UI, styled like Apple Music for Windows: sidebar, content area and player bar
-- Two themes (tray menu → Theme): **System** and **Aurora**, the shared look of the JGu Linux Apps series; both follow light/dark
-- Two layouts (tray menu → Layout): **Dock** (default) – bigger text, a large player at the bottom with the cover, title and artist, progress along its whole width, a sidebar with groups that fold, counts and playlist folders, album headers on a blurred cover; **Classic** – the look before 0.3
+- Two themes (Settings or tray menu → Theme): **System**, which uses your Ubuntu accent colour, and **Aurora**, the shared look of the JGu Linux Apps series; both follow light/dark
+- Two layouts (Settings or tray menu → Layout): **Dock** (default) – bigger text, a large player at the bottom with the cover, title and artist, progress along its whole width, a sidebar with groups that fold, counts and playlist folders, album headers on a blurred cover; **Classic** – the look before 0.3
 - Sign in with your Apple ID (Apple Music subscription required)
 - Home: recently played, heavy rotation and recommendations
 - Radio: your personal station and Apple Music live radio
@@ -26,7 +26,7 @@ A fast, lightweight Apple Music player for Ubuntu. It has its own interface buil
 - Closing the window hides it to the tray; quit from the tray menu
 - Ubuntu media controls (MPRIS): song, cover and controls in the top-bar menu and lock screen
 - Media keys and `playerctl` work
-- Optional notification for every new song, with cover (toggle in the tray menu)
+- Optional notification for every new song, with cover (toggle in Settings or the tray menu)
 - Light/dark theme follows the system; app and tray icons switch with it
 - Dock right-click actions: Play/Pause, Next, Previous
 - Polish UI when the system language is Polish, English otherwise
@@ -65,6 +65,9 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.4**:
+  - The System theme uses the accent colour you chose in Ubuntu (Settings → Appearance) for highlights and selections, and follows it live. It was always pink before; Apple pink is now only a fallback.
+  - New **Settings** button at the bottom of the sidebar opens the same options as the tray menu: theme, layout, notifications, close to tray, start with the system, reload, and sign out.
 - **0.3.3** – new dark-mode app icon in the series style: the app's own symbol on a deep navy tile, the same as the other apps of the series.
 - **0.3.1** – new default layout **Dock** (tray menu → Layout): bigger and easier to read, a large player at the bottom (96 px cover, big title, artist and album, full-width progress), sidebar groups Apple Music / Library / Playlists that fold, counts next to Artists / Albums / Songs, playlists with cover thumbnails and in folders as in Apple Music, the playing playlist marked; album and playlist headers with a big title on a blurred cover, taller track rows. **Classic** keeps the previous look. The window now always opens when you start the player from the app menu; *Start with the system (hidden in tray)* (formerly *Start hidden in tray*) adds a login autostart entry that keeps it in the tray.
 - **0.2.9** – album and playlist covers grow with the window: on a large / full-screen window they are up to ~50% bigger (with sharper artwork and slightly larger titles); on smaller windows they stay as before.
