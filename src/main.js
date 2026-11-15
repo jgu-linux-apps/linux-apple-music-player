@@ -262,8 +262,10 @@ function argbPixmaps(file) {
   });
 }
 function applyTrayIcon() {
-  const v = dark() ? 'dark' : 'light';
-  if (sni) sni.setIcon({ name: `${TRAY}-${v}`, themePath: A('tray'), pixmaps: argbPixmaps(A(`tray/${TRAY}-${v}.png`)) });
+  // A symbolic icon: GNOME paints it in the panel's own text colour, so it is readable on a dark or a light top
+  // bar whatever the app theme is (the top bar does not follow light/dark). The white pixels are only a fallback
+  // for hosts that cannot load named icons (the GNOME top bar is usually dark).
+  if (sni) sni.setIcon({ name: `${TRAY}-symbolic`, themePath: A('tray'), pixmaps: argbPixmaps(A(`tray/${TRAY}-dark.png`)) });
   else if (tray) tray.setImage(trayIcon());
 }
 function toggleSetting(k) { applySetting(k, !settings[k]); }

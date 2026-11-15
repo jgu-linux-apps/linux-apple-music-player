@@ -65,6 +65,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.8**: the tray icon is a symbolic icon, so GNOME paints it in the top bar's own text colour: white on a dark bar, dark on a light one. In 0.3.7 it followed the app theme, so with a light theme and the usual dark top bar it was dark on dark.
 - **0.3.7**:
   - New tray icon that is easy to see at panel size: a solid record with a large note cut out, dark on light panels and white on dark ones. It replaces the 0.3.5 tray icon, which turned into a grey blob.
   - The sidebar can be resized: drag its right edge (200–460 px). Drag it fully to the left, double-click the edge or press Ctrl+B to hide it, so the page uses the whole window. A small handle at the window edge brings it back, and the width is remembered.
