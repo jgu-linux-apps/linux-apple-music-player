@@ -43,9 +43,9 @@ try { fs.mkdirSync(cacheDir, { recursive: true }); } catch (_) {}
 const A = (f) => path.join(__dirname, 'assets', f);
 const dark = () => nativeTheme.shouldUseDarkColors;
 const appIcon = () => nativeImage.createFromPath(A(dark() ? 'icon-dark-256.png' : 'icon-light-256.png'));
-// The tray icon name changes when the artwork changes (tray2 = vinyl, 0.3.5+): GNOME Shell keeps themed icons by name
-// for the whole session, so a new name makes it read the new file without logging out.
-const TRAY = `${APP_ID}-tray2`;
+// The tray icon name changes when the artwork changes (tray3 = record with a note, 0.3.7): GNOME Shell keeps themed
+// icons by name for the whole session, so a new name makes it read the new file without logging out.
+const TRAY = `${APP_ID}-tray3`;
 const trayIcon = () => nativeImage.createFromPath(A(`tray/${TRAY}-${dark() ? 'dark' : 'light'}.png`));
 // Same rule as packaging/icon-watch.sh (which also runs while the app is closed): dark = dark icon copied
 // to ~/.local/share/icons (wins over /usr/share), light = copies removed, so the package's light icon is used.

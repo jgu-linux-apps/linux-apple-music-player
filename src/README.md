@@ -65,6 +65,9 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.7**:
+  - New tray icon that is easy to see at panel size: a solid record with a large note cut out, dark on light panels and white on dark ones. It replaces the 0.3.5 tray icon, which turned into a grey blob.
+  - The sidebar can be resized: drag its right edge (200–460 px). Drag it fully to the left, double-click the edge or press Ctrl+B to hide it, so the page uses the whole window. A small handle at the window edge brings it back, and the width is remembered.
 - **0.3.6**:
   - Album and playlist pages: a large blurred copy of the cover reaches under the first songs and fades softly into the page, with no hard edge under the header. The column header (Title / Artist / Album / Time) is a sheet of glass that stays on top while scrolling. Works in the System and Aurora themes, light and dark.
   - The tray icon gets a new name, so GNOME shows the new vinyl tray icon right after installing instead of after logging out.

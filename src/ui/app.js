@@ -25,6 +25,7 @@
     empty: 'Brak elementów', noResults: 'Brak wyników', inLibrary: 'Twoja biblioteka', added: 'Dodano do biblioteki', addedTo: 'Dodano do: ', queued: 'Dodano do kolejki',
     copied: 'Skopiowano link', songsN: (n) => n + (n === 1 ? ' utwór' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? ' utwory' : ' utworów'),
     min: ' min', title: 'Tytuł', artist: 'Wykonawca', album: 'Album', time: 'Czas', topSongs: 'Najpopularniejsze utwory', fullAlbums: 'Albumy', singles: 'Single i EP',
+    sizer: 'Przeciągnij, aby zmienić szerokość · dwuklik lub Ctrl+B chowa i pokazuje pasek',
     playErr: 'Nie można odtworzyć utworu', error: 'Błąd: ', volume: 'Głośność', repeat: 'Powtarzaj', prev: 'Poprzedni', next: 'Następny', close: 'Zamknij (Esc)', stations: 'Stacje', radio: 'Radio', albumK: 'Album', playlistK: 'Playlista'
   } : {
     search: 'Search', appleMusic: 'Apple Music', home: 'Home', library: 'Library', recent: 'Recently Added', artists: 'Artists',
@@ -37,6 +38,7 @@
     empty: 'Nothing here', noResults: 'No results', inLibrary: 'Your Library', added: 'Added to Library', addedTo: 'Added to: ', queued: 'Added to queue',
     copied: 'Link copied', songsN: (n) => n + (n === 1 ? ' song' : ' songs'),
     min: ' min', title: 'Title', artist: 'Artist', album: 'Album', time: 'Time', topSongs: 'Top Songs', fullAlbums: 'Albums', singles: 'Singles & EPs',
+    sizer: 'Drag to resize · double-click or Ctrl+B hides and shows the sidebar',
     playErr: 'Cannot play this song', error: 'Error: ', volume: 'Volume', repeat: 'Repeat', prev: 'Previous', next: 'Next', close: 'Close (Esc)', stations: 'Stations', radio: 'Radio', albumK: 'Album', playlistK: 'Playlist'
   };
 
@@ -309,6 +311,42 @@
   }
   $('.brand span').textContent = cfg.name;
   $('#ver').append(el('div', { text: `${cfg.name} ${cfg.version} · ${cfg.date}` }), el('div', { class: 'credit', text: 'Created by: JGu' }), el('div', { class: 'credit', text: 'Supported by Claude' }));
+
+  // Sidebar: drag its right edge to resize (200–460 px); drag far left, double-click or Ctrl+B to hide it so the
+  // page gets the whole width; the handle stays at the window edge to bring it back. Remembered per user.
+  (() => {
+    const app = $('#app');
+    const sizer = el('div', { class: 'sizer', title: S.sizer });
+    app.appendChild(sizer);
+    let w = +(localStorage.getItem('lamp.sidew') || 0);
+    let hidden = localStorage.getItem('lamp.sidehidden') === '1';
+    const apply = () => {
+      if (hidden) app.style.setProperty('--sidew', '0px');
+      else if (w) app.style.setProperty('--sidew', w + 'px');
+      else app.style.removeProperty('--sidew');               // layout default (Dock 290 px, Classic 236 px)
+      document.body.classList.toggle('side-hidden', hidden);
+    };
+    const save = () => { try { localStorage.setItem('lamp.sidew', String(w || '')); localStorage.setItem('lamp.sidehidden', hidden ? '1' : '0'); } catch (_) {} };
+    const toggle = () => { hidden = !hidden; apply(); save(); };
+    sizer.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      sizer.setPointerCapture(e.pointerId);
+      sizer.classList.add('drag'); document.body.classList.add('sizing');
+      const left = app.getBoundingClientRect().left;
+      const move = (ev) => {
+        const x = ev.clientX - left;
+        if (x < 120) { hidden = true; } else { hidden = false; w = Math.max(200, Math.min(460, Math.round(x))); }
+        apply();
+      };
+      const up = () => { sizer.removeEventListener('pointermove', move); sizer.classList.remove('drag'); document.body.classList.remove('sizing'); save(); };
+      sizer.addEventListener('pointermove', move);
+      sizer.addEventListener('pointerup', up, { once: true });
+      sizer.addEventListener('pointercancel', up, { once: true });
+    });
+    sizer.addEventListener('dblclick', toggle);
+    document.addEventListener('keydown', (e) => { if (e.ctrlKey && !e.shiftKey && !e.altKey && (e.key === 'b' || e.key === 'B')) { e.preventDefault(); toggle(); } });
+    apply();
+  })();
 
   // Settings: the same options as the tray menu, also reachable inside the window (bottom of the sidebar)
   const prefs = (() => {

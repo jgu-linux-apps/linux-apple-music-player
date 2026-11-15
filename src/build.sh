@@ -7,7 +7,7 @@ rm -rf build && mkdir -p $B/DEBIAN $B/opt/$P/resources/app $B/usr/bin $B/usr/sha
 cp -a /home/claude/dl/electron/. $B/opt/$P/ && mv $B/opt/$P/electron $B/opt/$P/$P && rm -f $B/opt/$P/resources/default_app.asar
 cp -a app/{package.json,main.js,preload.js,mpris.js,sni.js,i18n.js,ui,assets,node_modules} $B/opt/$P/resources/app/
 for s in 48 64 128 256 512; do mkdir -p $B/usr/share/icons/hicolor/${s}x${s}/apps; cp app/assets/icon-light-$s.png $B/usr/share/icons/hicolor/${s}x${s}/apps/$P.png; done
-for s in 22 32 48 64; do mkdir -p $B/usr/share/icons/hicolor/${s}x${s}/apps; for v in light dark; do convert app/assets/tray/$P-tray2-$v.png -resize ${s}x${s} $B/usr/share/icons/hicolor/${s}x${s}/apps/$P-tray2-$v.png; done; done
+for s in 22 32 48 64; do mkdir -p $B/usr/share/icons/hicolor/${s}x${s}/apps; for v in light dark; do convert app/assets/tray/$P-tray3-$v.png -resize ${s}x${s} $B/usr/share/icons/hicolor/${s}x${s}/apps/$P-tray3-$v.png; done; done
 mkdir -p $B/usr/share/icons/hicolor/scalable/apps && cp app/assets/icon-light.svg $B/usr/share/icons/hicolor/scalable/apps/$P.svg
 # icon follows light/dark also while the app is closed (session autostart helper)
 mkdir -p $B/usr/lib/$P $B/etc/xdg/autostart
