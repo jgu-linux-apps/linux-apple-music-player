@@ -65,7 +65,9 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
-- **0.3.4**:
+- **0.3.5**:
+  - New app icon: a black vinyl record with a red label and a white note, on a white tile, or on the series' navy tile in dark mode. The tray icon is new too, white or dark following the panel.
+  - New start-up screen with the full app name and credits, light or dark following the system. The main window appears once the player has loaded. No splash when starting hidden in the tray.
   - The System theme uses the accent colour you chose in Ubuntu (Settings → Appearance) for highlights and selections, and follows it live. It was always pink before; Apple pink is now only a fallback.
   - New **Settings** button at the bottom of the sidebar opens the same options as the tray menu: theme, layout, notifications, close to tray, start with the system, reload, and sign out.
 - **0.3.3** – new dark-mode app icon in the series style: the app's own symbol on a deep navy tile, the same as the other apps of the series.

@@ -162,7 +162,37 @@ function titleBarColors() {
 function applyTitleBar() {
   if (win && !win.isDestroyed() && win.setTitleBarOverlay) { try { win.setTitleBarOverlay(Object.assign({ height: TB_H }, titleBarColors())); } catch (_) {} }
 }
+// ---------- start-up splash (light / dark, follows the system) ----------
+let splash = null, splashAt = 0;
+const startsHidden = () => settings.startHidden && process.argv.includes('--hidden');
+function showSplash() {
+  if (startsHidden()) return;
+  try {
+    splash = new BrowserWindow({
+      width: 720, height: 420, frame: false, transparent: true, resizable: false, movable: true, show: false,
+      center: true, skipTaskbar: true, focusable: false, hasShadow: false, title: APP_NAME, icon: appIcon(),
+      backgroundColor: '#00000000', webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false }
+    });
+    splash.setMenuBarVisibility(false);
+    splash.loadFile(path.join(__dirname, 'ui', 'splash.html'), { query: { theme: dark() ? 'dark' : 'light' } });
+    splash.once('ready-to-show', () => { if (splash) { splash.show(); splashAt = Date.now(); } });
+    splash.on('closed', () => { splash = null; });
+  } catch (e) { console.warn('splash', e); splash = null; }
+}
+let revealed = false;
+function revealMain() {
+  // the main window appears when the UI has loaded; the splash stays at least 1.4 s so it never just flashes
+  if (revealed || !win || win.isDestroyed()) return;
+  revealed = true;
+  const wait = splash ? Math.max(0, 1400 - (Date.now() - (splashAt || Date.now()))) : 0;
+  setTimeout(() => {
+    if (!startsHidden() && win && !win.isDestroyed()) win.show();
+    if (splash && !splash.isDestroyed()) splash.close();
+  }, wait);
+}
+
 function createWindow() {
+  showSplash();
   const b = settings.bounds || {};
   win = new BrowserWindow({
     width: b.width || 1280, height: b.height || 820, x: b.x, y: b.y,
@@ -193,9 +223,9 @@ function createWindow() {
   win.on('resize', debounce(saveBounds, 800));
   win.on('move', debounce(saveBounds, 800));
   win.on('show', rebuildTray); win.on('hide', rebuildTray);
-  // hidden only when started with the system (autostart entry passes --hidden); from the app menu the window shows
-  win.once('ready-to-show', () => { if (!(settings.startHidden && process.argv.includes('--hidden'))) win.show(); });
-  win.webContents.on('did-finish-load', () => { if (win.webContents.getURL().startsWith(UI_BASE)) releaseProtocol(); });
+  // hidden only when started with the system (autostart entry passes --hidden)
+  win.webContents.on('did-finish-load', () => { if (win.webContents.getURL().startsWith(UI_BASE)) { releaseProtocol(); revealMain(); } });
+  setTimeout(revealMain, 10000);   // safety: show the window even if the UI is slow or fails to load
   win.webContents.on('did-fail-load', (_e, code, _d, url, isMain) => { if (isMain && code !== -3) setTimeout(loadUI, 3000); });
   win.webContents.on('render-process-gone', () => setTimeout(loadUI, 500));
   loadUI();
