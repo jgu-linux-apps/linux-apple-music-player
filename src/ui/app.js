@@ -523,8 +523,12 @@
       const total = it.count || (tr.data || []).length;
       const meta = [it.genre, it.date ? String(it.date).slice(0, 4) : ''].filter(Boolean).join(' · ');
       const a300 = artUrl(it.artwork, 300);
+      // Dock: a big blurred copy of the cover behind the header AND the first rows, fading into the page (no hard edge)
+      if (a300) {
+        node.classList.add('m3');
+        node.insertBefore(el('div', { class: 'pagebg', style: `--cover:url("${a300}")` }), node.firstChild);
+      }
       const hero = el('div', { class: 'hero' },
-        a300 ? el('div', { class: 'hbg', style: `background-image:url("${a300}")` }) : null,  // Dock: blurred cover behind the header
         el('div', { class: 'art' }, a300 ? img(a300, 'ok') : placeholder(kind)),
         el('div', { class: 'info' },
           el('div', { class: 'kick', text: (kind === 'playlist' ? S.playlistK : S.albumK) + (it.date ? ' · ' + String(it.date).slice(0, 4) : '') }),

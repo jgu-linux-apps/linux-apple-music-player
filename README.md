@@ -65,6 +65,9 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.6**:
+  - Album and playlist pages: a large blurred copy of the cover reaches under the first songs and fades softly into the page, with no hard edge under the header. The column header (Title / Artist / Album / Time) is a sheet of glass that stays on top while scrolling. Works in the System and Aurora themes, light and dark.
+  - The tray icon gets a new name, so GNOME shows the new vinyl tray icon right after installing instead of after logging out.
 - **0.3.5**:
   - New app icon: a black vinyl record with a red label and a white note, on a white tile, or on the series' navy tile in dark mode. The tray icon is new too, white or dark following the panel.
   - New start-up screen with the full app name and credits, light or dark following the system. The main window appears once the player has loaded. No splash when starting hidden in the tray.
