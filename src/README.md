@@ -65,6 +65,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.12**: the start-up screen (and the window background while it loads) follows the system's light or dark style from the first moment. Electron learns GNOME's colour scheme only a moment after start, so the start-up screen was always light; the app now reads it itself (XDG portal, then gsettings) and follows changes after that.
 - **0.3.11**: your own playlists opened from Home (or anywhere that shows them by their shared catalog link) open as the library copy, so "Remove from Playlist" works there too.
 - **0.3.10**: "Remove from Playlist" in the right-click menu of a song in your own playlists; the song disappears from the list at once. On album and playlist pages the top bar and the column header turn solid once the list scrolls under them, so the rows no longer show through.
 - **0.3.9**: the tray shows the app's own icon: the black vinyl record with the red label and the white note, with a white rim, so it is clear on dark and light top bars alike. The 0.3.8 symbolic icon lost the note, because GNOME paints symbolic icons in a single colour.

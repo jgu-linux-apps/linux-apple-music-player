@@ -41,7 +41,28 @@ try { fs.mkdirSync(cacheDir, { recursive: true }); } catch (_) {}
 
 // ---------- icons ----------
 const A = (f) => path.join(__dirname, 'assets', f);
-const dark = () => nativeTheme.shouldUseDarkColors;
+// Light / dark: at start-up Electron does not know GNOME's colour scheme yet (it arrives a moment later through
+// the portal), so the splash and the window were always light. Read it ourselves first — the XDG portal
+// (org.freedesktop.appearance color-scheme: 1 dark, 2 light), then gsettings — and follow nativeTheme after that.
+function readSystemDark() {
+  const cp = require('child_process');
+  try {
+    const out = cp.execFileSync('gdbus', ['call', '--session', '--dest', 'org.freedesktop.portal.Desktop',
+      '--object-path', '/org/freedesktop/portal/desktop', '--method', 'org.freedesktop.portal.Settings.ReadOne',
+      'org.freedesktop.appearance', 'color-scheme'], { timeout: 1500, encoding: 'utf8' });
+    const m = /uint32 (\d+)/.exec(out);
+    if (m && m[1] !== '0') return m[1] === '1';
+  } catch (_) {}
+  try {
+    const v = cp.execFileSync('gsettings', ['get', 'org.gnome.desktop.interface', 'color-scheme'],
+      { timeout: 1500, encoding: 'utf8' });
+    if (v.includes('prefer-dark')) return true;
+    if (v.includes('prefer-light') || v.includes('default')) return false;
+  } catch (_) {}
+  return nativeTheme.shouldUseDarkColors;
+}
+let systemDark = readSystemDark();
+const dark = () => systemDark;
 const appIcon = () => nativeImage.createFromPath(A(dark() ? 'icon-dark-256.png' : 'icon-light-256.png'));
 // Tray: the dock icon's record (black vinyl, red label, white note) with a white rim, one picture for dark and light
 // panels. The name changes whenever the artwork changes (tray4, 0.3.9): GNOME Shell keeps themed icons by name for
@@ -487,6 +508,7 @@ watchAccent();
 app.on('will-quit', () => { if (accentWatch) accentWatch.kill(); });
 nativeTheme.themeSource = 'system';
 nativeTheme.on('updated', () => {
+  systemDark = nativeTheme.shouldUseDarkColors;
   applyTrayIcon();
   if (win) { win.setIcon(appIcon()); win.setBackgroundColor(dark() ? '#1e1e20' : '#ffffff'); }
   applyTitleBar();
