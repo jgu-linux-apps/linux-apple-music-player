@@ -181,7 +181,9 @@ function getToken(force) {
 const TB_H = 34;
 function titleBarColors() {
   const d = dark();
-  if (settings.theme === 'aurora') return d ? { color: '#0e1020', symbolColor: '#ecebff' } : { color: '#f1edff', symbolColor: '#1f1a3a' };
+  // Aurora: the strip is see-through over the window gradient; the buttons sit in the top-right corner, where the
+  // glow has faded, so they get that corner's solid colour (#0c0e1a + 4 % white / lavender-blue + 58 % white)
+  if (settings.theme === 'aurora') return d ? { color: '#161823', symbolColor: '#ecebff' } : { color: '#f8fbff', symbolColor: '#1f1a3a' };
   return d ? { color: '#19191b', symbolColor: '#f5f5f7' } : { color: '#f3f3f5', symbolColor: '#1d1d1f' };
 }
 function applyTitleBar() {

@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.3.3 — 2026-11-14**
+**Version 0.3.13 — 2026-11-21**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -65,6 +65,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.3.13**: in the Aurora theme the title bar is no longer a flat strip: the window's colour glow runs under it (turquoise from the top-left, violet at the bottom-right in dark; lavender-to-blue in light), like Linux iMessage and the rest of the series. The System theme is unchanged.
 - **0.3.12**: the start-up screen (and the window background while it loads) follows the system's light or dark style from the first moment. Electron learns GNOME's colour scheme only a moment after start, so the start-up screen was always light; the app now reads it itself (XDG portal, then gsettings) and follows changes after that.
 - **0.3.11**: your own playlists opened from Home (or anywhere that shows them by their shared catalog link) open as the library copy, so "Remove from Playlist" works there too.
 - **0.3.10**: "Remove from Playlist" in the right-click menu of a song in your own playlists; the song disappears from the list at once. On album and playlist pages the top bar and the column header turn solid once the list scrolls under them, so the rows no longer show through.

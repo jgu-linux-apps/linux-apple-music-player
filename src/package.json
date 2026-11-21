@@ -1,7 +1,7 @@
 {
   "name": "linux-apple-music-player",
   "productName": "Linux Apple Music Player",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "releaseDate": "2026-11-15",
   "description": "Lightweight Apple Music player for Ubuntu with tray, MPRIS media controls, notifications, cover view and synced lyrics.",
   "main": "main.js",
