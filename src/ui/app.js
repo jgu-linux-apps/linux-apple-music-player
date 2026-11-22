@@ -697,7 +697,52 @@
     };
   }
   ROUTES.recent = gridView(S.recent, lib('/recently-added?limit=25'));
-  ROUTES.albums = gridView(S.albums, lib('/albums?limit=100'));
+  // Albums. Songs added from a computer and matched to the catalog (e.g. by Sync with iPhone) can sit in the
+  // library without a library-album entry; music.apple.com still shows them as albums, built from the songs.
+  // So after the albums, the library songs are scanned and albums that only exist through their songs are
+  // added at the end ("song albums", opened from the songs we already have).
+  const songAlbums = new Map();
+  async function allPages(first, cap) {
+    const out = []; let next = first;
+    while (next && out.length < cap) { const r = await api(next); out.push(...(r.data || [])); next = r.next || null; }
+    return out;
+  }
+  ROUTES.albums = (node) => {
+    head(S.albums, node);
+    const pad = el('div', { class: 'pad' }); node.appendChild(pad);
+    const grid = el('div', { class: 'grid' }); pad.appendChild(grid);
+    const key = (name, artist) => String(name || '').trim().toLowerCase() + '\u0000' + String(artist || '').trim().toLowerCase();
+    const known = new Set(), knownName = new Set();
+    infinite(grid, lib('/albums?limit=100'), (items) => {
+      const f = document.createDocumentFragment();
+      items.forEach((i) => { known.add(key(i.name, i.artist)); knownName.add(key(i.name, '')); f.appendChild(card(i)); });
+      grid.appendChild(f);
+    }, () => { if (!grid.children.length) pad.appendChild(el('div', { class: 'empty', text: S.empty })); });
+    (async () => {
+      try {
+        const [albums, songs] = await Promise.all([allPages(lib('/albums?limit=100'), 5000), allPages(lib('/songs?limit=100'), 20000)]);
+        albums.forEach((r) => { const a = r.attributes || {}; known.add(key(a.name, a.artistName)); knownName.add(key(a.name, '')); });
+        const groups = new Map();
+        for (const r of songs) {
+          const a = r.attributes || {};
+          if (!a.albumName) continue;
+          if (knownName.has(key(a.albumName, ''))) continue;
+          const g = groups.get(a.albumName) || { songs: [], artists: new Map() };
+          g.songs.push(r); g.artists.set(a.artistName, (g.artists.get(a.artistName) || 0) + 1);
+          groups.set(a.albumName, g);
+        }
+        let n = 0;
+        for (const [name, g] of groups) {
+          const artist = [...g.artists.entries()].sort((x, y) => y[1] - x[1])[0][0] || '';
+          const sorted = g.songs.slice().sort((x, y) => ((x.attributes.discNumber || 1) - (y.attributes.discNumber || 1)) || ((x.attributes.trackNumber || 0) - (y.attributes.trackNumber || 0)));
+          const id = 'sa.' + (n++) + '.' + encodeURIComponent(name).slice(0, 40);
+          const a0 = sorted[0].attributes;
+          songAlbums.set(id, { name, artist, songs: sorted, artwork: a0.artwork, date: a0.releaseDate || '', genre: (a0.genreNames || [])[0] || '' });
+          grid.appendChild(card({ id, type: 'lamp-song-album', kind: 'album', lib: true, name, artist, artwork: a0.artwork, count: sorted.length, raw: null }));
+        }
+      } catch (e) { console.warn('song albums', e); }
+    })();
+  };
   ROUTES.artists = gridView(S.artists, lib('/artists?limit=100&include=catalog'), { sub: '', size: 280 });
 
   ROUTES.songs = (node) => {
@@ -707,7 +752,32 @@
     infinite(tl.list, lib('/songs?limit=100&include=albums'), tl.add, () => tl.node.appendChild(el('div', { class: 'empty', text: S.empty })));
   };
 
+  function songAlbumView(node, args) {
+    const sa = songAlbums.get(args.id);
+    head(sa ? '' : S.albums, node);
+    if (!sa) { node.appendChild(el('div', { class: 'empty', text: S.empty })); return; }
+    const it = { id: args.id, type: 'lamp-song-album', kind: 'album', lib: true, name: sa.name, artist: sa.artist, artwork: sa.artwork };
+    const tl = trackList([], { ctx: 'library-songs' });
+    const a300 = artUrl(sa.artwork, 300);
+    if (a300) { node.classList.add('m3'); node.insertBefore(el('div', { class: 'pagebg', style: `--cover:url("${a300}")` }), node.firstChild); }
+    const meta = [sa.genre, sa.date ? String(sa.date).slice(0, 4) : ''].filter(Boolean).join(' · ');
+    node.appendChild(el('div', { class: 'hero' },
+      el('div', { class: 'art' }, a300 ? img(a300, 'ok') : placeholder('album')),
+      el('div', { class: 'info' },
+        el('div', { class: 'kick', text: S.albumK + (sa.date ? ' · ' + String(sa.date).slice(0, 4) : '') }),
+        el('h1', { text: sa.name }), sa.artist ? el('div', { class: 'by', text: sa.artist }) : null,
+        meta ? el('div', { class: 'meta', text: meta }) : el('div', { class: 'meta' }),
+        el('div', { class: 'btns' },
+          el('button', { class: 'btn', onclick: () => playList(tl.all, 0, null, false) }, icon('play'), S.play),
+          el('button', { class: 'btn sec', onclick: () => playList(tl.all, 0, null, true) }, icon('shuffle'), S.shuffle)))));
+    node.appendChild(tl.node);
+    tl.add(sa.songs.map(norm));
+    const ms = tl.all.reduce((x, t) => x + (t.duration || 0), 0);
+    node.appendChild(el('div', { class: 'foot', text: `${S.songsN(tl.all.length)}, ${Math.round(ms / 60000)}${S.min}` }));
+    void it;
+  }
   ROUTES.detail = (node, args) => {
+    if (args.type === 'lamp-song-album') return songAlbumView(node, args);
     // Home / search show your own playlists by their catalog id (pl.u-…): open the library copy instead,
     // so its songs are library songs and the playlist can be edited (Remove from Playlist).
     if (!String(args.type || '').startsWith('library-') && String(args.id).startsWith('pl.')) {
@@ -853,6 +923,7 @@
     } catch (e) { console.warn('setQueue', e); toast(S.playErr); throw e; }
   }
   async function playItem(it, shuffle) {
+    if (it && it.type === 'lamp-song-album') { const sa = songAlbums.get(it.id); if (sa) playList(sa.songs.map(norm), 0, null, !!shuffle); return; }
     nowPl = it.kind === 'playlist' ? it.id : null; markNav();
     if (!mk) return;
     try { await startQueue({ [queueKey(it)]: it.id }, !!shuffle); }
