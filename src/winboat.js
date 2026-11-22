@@ -192,24 +192,49 @@ function createBridge({ onState, log }) {
     throw new Error('bootTimeout');
   }
 
-  // RemoteApp session running the job; it stays open while Apple Music's window is open on the desktop.
-  async function openSession(job) {
+  // Our FreeRDP window. A window that lost its session (another client took it) freezes on its last
+  // frame and ignores SIGTERM, so it gets SIGKILL after a moment.
+  function killRdp() {
+    const p = rdp; rdp = null;
+    if (!p || p.exitCode !== null) return;
+    p.replaced = true;
+    try { p.kill('SIGTERM'); } catch (_) {}
+    setTimeout(() => { if (p.exitCode === null) { try { p.kill('SIGKILL'); } catch (_) {} } }, 2500);
+  }
+
+  // RemoteApp session running a PowerShell command; it stays open while Apple Music's window is open.
+  async function openSession(psCommand) {
     const c = credentials();
     const port = await hostPort(3389);
     if (!c || !port) throw new Error('noRdp');
-    const winJob = winPath(job);
-    const cmd = `-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "Get-Content -Raw -LiteralPath '${winJob}\\job.ps1' | Invoke-Expression"`;
+    killRdp();
+    const cmd = `-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -Command "${psCommand}"`;
     const args = [`/v:127.0.0.1:${port}`, `/u:${c.user}`, '/from-stdin:force', '/cert:ignore', '-wallpaper', '+auto-reconnect',
       '/wm-class:winboat-apple-music', `/app:program:C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe,cmd:${cmd}`];
-    rdp = spawn('xfreerdp3', args, { stdio: ['pipe', 'ignore', 'pipe'] });
+    const proc = spawn('xfreerdp3', args, { stdio: ['pipe', 'ignore', 'pipe'] });
+    rdp = proc;
     let errTail = '';
-    rdp.stderr.on('data', (d) => { errTail = (errTail + d).slice(-2000); });
+    proc.stderr.on('data', (d) => { errTail = (errTail + d).slice(-2000); });
     // /from-stdin:force with /u: given asks only for the password; it never shows up in the process list
-    rdp.stdin.write(c.pass + '\n');
-    rdp.stdin.end();
-    const proc = rdp;
-    proc.on('exit', (code) => { say('rdp exit', code, errTail.replace(/\/p:\S+/g, '')); if (rdp === proc) rdp = null; });
+    proc.stdin.write(c.pass + '\n');
+    proc.stdin.end();
+    proc.on('exit', (code) => { say('rdp exit', code, errTail); if (rdp === proc) rdp = null; });
     return proc;
+  }
+  const jobCommand = (job) => `Get-Content -Raw -LiteralPath '${winPath(job)}\\job.ps1' | Invoke-Expression`;
+
+  // Bring Apple Music's window (back) to the desktop: reconnects to the same Windows session.
+  async function showApple() {
+    if (busy) return { error: 'busy' };
+    try {
+      const st = await status();
+      if (!st.ready) throw new Error(st.problem);
+      await ensureWindows();
+      const proc = await openSession("Start-Process 'AppleMusic.exe'; Start-Sleep 10");
+      proc.on('exit', () => { if (!proc.replaced) emit({ step: 'closed' }); });
+      emit({ step: 'shown' });
+      return { ok: true };
+    } catch (e) { const m = String(e && e.message || e); emit({ step: 'error', error: m }); return { error: m }; }
   }
 
   async function add(paths) {
@@ -227,9 +252,9 @@ function createBridge({ onState, log }) {
       fs.writeFileSync(path.join(job, 'job.ps1'), '\uFEFF' + jobScript(winPath(job)));
       await ensureWindows();
       emit({ step: 'connect', total: prep.count, skipped: prep.skipped });
-      const proc = await openSession(job);
+      const proc = await openSession(jobCommand(job));
       let exited = false, finished = false;
-      proc.on('exit', () => { exited = true; if (finished) emit({ step: 'closed' }); });
+      proc.on('exit', () => { exited = true; if (finished && !proc.replaced) emit({ step: 'closed' }); });
       // follow status.json written by Windows; the import ends when Apple Music took every file
       let last = null;
       for (let t = 0; ; t++) {
@@ -256,7 +281,7 @@ function createBridge({ onState, log }) {
   }
 
   // Close the Apple Music window (ends the RemoteApp session; Apple Music keeps running in Windows).
-  function closeWindow() { if (rdp) { try { rdp.kill('SIGTERM'); } catch (_) {} rdp = null; } }
+  function closeWindow() { killRdp(); }
   async function stopWindows() {
     closeWindow();
     emit({ step: 'stopping' });
@@ -267,7 +292,7 @@ function createBridge({ onState, log }) {
   }
   function cancel() { cancelled = true; closeWindow(); }
 
-  return { status, add, closeWindow, stopWindows, cancel, get busy() { return busy; }, get sessionOpen() { return !!rdp; }, get startedByUs() { return startedByUs; } };
+  return { status, add, showApple, closeWindow, stopWindows, cancel, get busy() { return busy; }, get sessionOpen() { return !!rdp; }, get startedByUs() { return startedByUs; } };
 }
 
 module.exports = { createBridge, collect, DIRECT, CONVERT };

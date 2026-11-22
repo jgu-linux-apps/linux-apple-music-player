@@ -33,8 +33,8 @@
     wbFormats: 'MP3, M4A, AAC, AIFF i WAV idą bez zmian; FLAC i OGG zamieniane są na ALAC / AAC (ffmpeg).',
     wbS_prepare: 'Przygotowuję pliki', wbS_boot: 'Uruchamiam Windows (WinBoat)…', wbS_connect: 'Łączę z Windows…', wbS_start: 'Otwieram Apple Music…', wbS_copy: 'Przekazuję pliki do Windows',
     wbS_import: 'Apple Music dodaje utwory do biblioteki', wbS_uploading: 'Gotowe: utwory są w bibliotece',
-    wbUploadNote: 'Apple Music wysyła je teraz do iCloud. Zostaw jego okno otwarte, aż przy utworach znikną ikony chmurki (może to potrwać kilka minut), potem je zamknij. Utwory pojawią się na iPhonie i tutaj w Ostatnio dodanych.',
-    wbCloseWin: 'Zamknij okno Apple Music', wbStop: 'Wyłącz Windows', wbS_stopping: 'Wyłączam Windows…', wbS_stopped: 'Windows wyłączony', wbCancel: 'Przerwij', wbS_closed: 'Okno Apple Music zamknięte', wbClosedNote: 'Jeśli wysyłanie do iCloud jeszcze trwało, dokończy się przy następnym otwarciu Apple Music. Windows możesz teraz wyłączyć.',
+    wbUploadNote: 'Apple Music wysyła je teraz do iCloud. Zostaw jego okno otwarte, aż na dole zniknie „Uaktualniam bibliotekę…” (przy większych albumach kilka–kilkanaście minut; okno może wtedy chwilowo nie reagować), potem je zamknij. Gdy okno zastygnie lub zniknie, kliknij „Pokaż okno Apple Music”. Utwory pojawią się na iPhonie i tutaj w Ostatnio dodanych.',
+    wbCloseWin: 'Zamknij okno Apple Music', wbStop: 'Wyłącz Windows', wbS_stopping: 'Wyłączam Windows…', wbS_stopped: 'Windows wyłączony', wbCancel: 'Przerwij', wbS_closed: 'Okno Apple Music zamknięte', wbShow: 'Pokaż okno Apple Music', wbS_shown: 'Okno Apple Music otwarte', wbClosedNote: 'Jeśli wysyłanie do iCloud jeszcze trwało, dokończy się przy następnym otwarciu Apple Music. Windows możesz teraz wyłączyć.',
     wbSkipped: 'pominięte (brak ffmpeg lub błąd konwersji): ', wbBusy: 'Synchronizacja już trwa',
     wbE: { dockerPerm: 'Brak dostępu do Dockera: dodaj się do grupy docker i uruchom komputer ponownie.', noDocker: 'Nie znaleziono Dockera. Zainstaluj WinBoat razem z Dockerem.',
       noWinboat: 'Nie znaleziono maszyny WinBoat. Zainstaluj w WinBoat Windows, a w nim Apple Music.', noShare: 'WinBoat nie udostępnia katalogu domowego w Windows (opcja przy instalacji WinBoat).',
@@ -60,8 +60,8 @@
     wbFormats: 'MP3, M4A, AAC, AIFF and WAV go as they are; FLAC and OGG are converted to ALAC / AAC (ffmpeg).',
     wbS_prepare: 'Preparing files', wbS_boot: 'Starting Windows (WinBoat)…', wbS_connect: 'Connecting to Windows…', wbS_start: 'Opening Apple Music…', wbS_copy: 'Handing the files to Windows',
     wbS_import: 'Apple Music is adding the songs to your library', wbS_uploading: 'Done: the songs are in your library',
-    wbUploadNote: 'Apple Music is now uploading them to iCloud. Keep its window open until the cloud icons next to the songs are gone (this can take a few minutes), then close it. The songs will show on your iPhone and here in Recently Added.',
-    wbCloseWin: 'Close Apple Music window', wbStop: 'Shut down Windows', wbS_stopping: 'Shutting down Windows…', wbS_stopped: 'Windows is off', wbCancel: 'Stop', wbS_closed: 'Apple Music window closed', wbClosedNote: 'If the iCloud upload was still running, it finishes the next time Apple Music opens. You can shut Windows down now.',
+    wbUploadNote: 'Apple Music is now uploading them to iCloud. Keep its window open until “Updating Library…” at the bottom is gone (a few to a dozen minutes for bigger albums; the window may not respond for a while meanwhile), then close it. If the window freezes or disappears, click “Show Apple Music window”. The songs will show on your iPhone and here in Recently Added.',
+    wbCloseWin: 'Close Apple Music window', wbStop: 'Shut down Windows', wbS_stopping: 'Shutting down Windows…', wbS_stopped: 'Windows is off', wbCancel: 'Stop', wbS_closed: 'Apple Music window closed', wbShow: 'Show Apple Music window', wbS_shown: 'Apple Music window is open', wbClosedNote: 'If the iCloud upload was still running, it finishes the next time Apple Music opens. You can shut Windows down now.',
     wbSkipped: 'skipped (no ffmpeg or conversion failed): ', wbBusy: 'A sync is already running',
     wbE: { dockerPerm: 'No access to Docker: add yourself to the docker group and restart the computer.', noDocker: 'Docker not found. Install WinBoat together with Docker.',
       noWinboat: 'No WinBoat machine found. Install Windows in WinBoat and Apple Music in it.', noShare: 'WinBoat does not share your home folder with Windows (an option when installing WinBoat).',
@@ -450,6 +450,7 @@
     const bCancel = el('button', { class: 'btn sec', text: S.wbCancel, onclick: () => window.lamp.wb('cancel') });
     const bClose = el('button', { class: 'btn', text: S.wbCloseWin, onclick: () => window.lamp.wb('close') });
     const bStop = el('button', { class: 'btn sec', text: S.wbStop, onclick: () => window.lamp.wb('stop') });
+    const bShow = el('button', { class: 'btn sec', text: S.wbShow, onclick: () => window.lamp.wb('show') });
     card.append(
       el('div', { class: 'sheethead' }, el('h2', { text: S.wbTitle }), el('span', { class: 'wbexp', text: S.wbExp }),
         el('button', { class: 'ib', title: S.close, onclick: () => close() }, icon('close'))),
@@ -481,10 +482,11 @@
       bar.classList.toggle('busy', ['boot', 'connect', 'start'].includes(st.step));
       note.textContent = st.skipped ? S.wbSkipped + st.skipped : '';
       acts.replaceChildren();
-      running = !['uploading', 'error', 'stopped', 'closed'].includes(st.step);
+      running = !['uploading', 'error', 'stopped', 'closed', 'shown'].includes(st.step);
       if (st.step === 'error') { step.className = 'wbstep bad'; step.textContent = errText(st.error); bar.firstChild.style.width = '0%'; acts.append(bStop); check(); }
-      else if (st.step === 'uploading') { uploaded = true; step.className = 'wbstep ok'; step.textContent = S.wbS_uploading + n; note.textContent = S.wbUploadNote + (st.skipped ? ' · ' + S.wbSkipped + st.skipped : ''); acts.append(bClose, bStop); memo.clear(); }
-      else if (st.step === 'closed') { if (uploaded) { step.className = 'wbstep ok'; step.textContent = S.wbS_closed; note.textContent = S.wbClosedNote; } acts.append(bStop); }
+      else if (st.step === 'uploading') { uploaded = true; step.className = 'wbstep ok'; step.textContent = S.wbS_uploading + n; note.textContent = S.wbUploadNote + (st.skipped ? ' · ' + S.wbSkipped + st.skipped : ''); acts.append(bClose, bShow, bStop); memo.clear(); }
+      else if (st.step === 'closed') { if (uploaded) { step.className = 'wbstep ok'; step.textContent = S.wbS_closed; note.textContent = S.wbClosedNote; } acts.append(bShow, bStop); }
+      else if (st.step === 'shown') { step.className = 'wbstep ok'; step.textContent = S.wbS_shown; bar.firstChild.style.width = uploaded ? '100%' : '0%'; note.textContent = S.wbUploadNote; acts.append(bClose, bStop); }
       else if (st.step === 'stopping' || st.step === 'stopped') { step.className = 'wbstep'; step.textContent = S['wbS_' + st.step]; bar.firstChild.style.width = '0%'; if (st.step === 'stopped') check(); }
       else { step.className = 'wbstep'; step.textContent = (S['wbS_' + st.step] || st.step) + (st.step === 'prepare' || st.step === 'import' || st.step === 'copy' ? n : ''); acts.append(bCancel); }
       setBtns();

@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.4.1 — 2026-11-22**
+**Version 0.4.2 — 2026-11-22**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -69,8 +69,9 @@ One-time setup:
 Then, in the player: **Library → Add from computer** → **Add album folder…** or **Add songs…**.
 The player starts Windows if it is off, opens Apple Music and hands it the files through its
 "Automatically Add to Apple Music" folder; Apple Music adds them to your library and uploads them to iCloud.
-Keep the Apple Music window open until the cloud icons next to the songs are gone, then close it
-(and shut Windows down from the same panel if you like).
+Keep the Apple Music window open until "Updating Library…" at its bottom is gone (it may not respond for a
+while after a bigger album), then close it, and shut Windows down from the same panel if you like. If the
+window freezes or disappears, **Show Apple Music window** connects it again.
 
 - MP3, M4A/AAC, AIFF and WAV are sent as they are. FLAC, OGG, Opus, WMA, APE and WavPack are converted with
   `ffmpeg` (lossless → ALAC, lossy → AAC 256 kb/s), keeping tags and the embedded cover.
@@ -99,6 +100,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.4.2**: Sync with iPhone: a "Show Apple Music window" button brings the Apple Music window back when it froze (another client took the Windows session) or was closed too early; the player never leaves a frozen FreeRDP window behind; the panel explains that Apple Music may not respond while it shows "Updating Library…" after a bigger album.
 - **0.4.1**: Sync with iPhone: when Apple Music has taken all the files, the player window comes back to the front with the result; closing the Apple Music window is noticed by the panel, which then offers to shut Windows down.
 - **0.4.0**: **Sync with iPhone (experimental)**: Library → Add from computer adds songs and album folders from your disk to your Apple Music library (and so to your iPhone) through Apple Music for Windows in WinBoat. The player starts Windows when needed, shows the Apple Music window on the Ubuntu desktop, hands it the files and follows the import step by step; FLAC/OGG are converted to ALAC/AAC on the way.
 - **0.3.13**: in the Aurora theme the title bar is no longer a flat strip: the window's colour glow runs under it (turquoise from the top-left, violet at the bottom-right in dark; lavender-to-blue in light), like Linux iMessage and the rest of the series. The System theme is unchanged.

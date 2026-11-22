@@ -488,6 +488,7 @@ ipcMain.handle('lamp:wb-pick', async (_e, kind) => {
 });
 ipcMain.on('lamp:wb', (_e, a) => {
   if (a === 'close') wb().closeWindow();
+  else if (a === 'show') wb().showApple();
   else if (a === 'stop') wb().stopWindows();
   else if (a === 'cancel') wb().cancel();
 });
