@@ -228,7 +228,8 @@ function createBridge({ onState, log }) {
       await ensureWindows();
       emit({ step: 'connect', total: prep.count, skipped: prep.skipped });
       const proc = await openSession(job);
-      let exited = false; proc.on('exit', () => { exited = true; });
+      let exited = false, finished = false;
+      proc.on('exit', () => { exited = true; if (finished) emit({ step: 'closed' }); });
       // follow status.json written by Windows; the import ends when Apple Music took every file
       let last = null;
       for (let t = 0; ; t++) {
@@ -241,6 +242,8 @@ function createBridge({ onState, log }) {
         await sleep(1000);
       }
       if (last.step === 'error') throw new Error(last.error || 'import');
+      finished = !exited;
+      if (exited) emit({ step: 'closed' });
       return { ok: true, total: last.total, skipped: prep.skipped };
     } catch (e) {
       const m = String(e && e.message || e);

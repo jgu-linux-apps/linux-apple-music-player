@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.4.0 — 2026-11-22**
+**Version 0.4.1 — 2026-11-22**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -99,6 +99,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.4.1**: Sync with iPhone: when Apple Music has taken all the files, the player window comes back to the front with the result; closing the Apple Music window is noticed by the panel, which then offers to shut Windows down.
 - **0.4.0**: **Sync with iPhone (experimental)**: Library → Add from computer adds songs and album folders from your disk to your Apple Music library (and so to your iPhone) through Apple Music for Windows in WinBoat. The player starts Windows when needed, shows the Apple Music window on the Ubuntu desktop, hands it the files and follows the import step by step; FLAC/OGG are converted to ALAC/AAC on the way.
 - **0.3.13**: in the Aurora theme the title bar is no longer a flat strip: the window's colour glow runs under it (turquoise from the top-left, violet at the bottom-right in dark; lavender-to-blue in light), like Linux iMessage and the rest of the series. The System theme is unchanged.
 - **0.3.12**: the start-up screen (and the window background while it loads) follows the system's light or dark style from the first moment. Electron learns GNOME's colour scheme only a moment after start, so the start-up screen was always light; the app now reads it itself (XDG portal, then gsettings) and follows changes after that.

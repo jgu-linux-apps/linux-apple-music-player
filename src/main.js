@@ -473,7 +473,7 @@ ipcMain.on('lamp:setting', (_e, k, v) => {
 ipcMain.on('lamp:action', (_e, a) => { if (a === 'signOut') signOutAndClear(); });
 // ---------- WinBoat bridge (experimental): own files → Apple Music for Windows → iCloud / iPhone ----------
 let wbBridge = null;
-const wb = () => wbBridge || (wbBridge = require('./winboat').createBridge({ onState: (st) => send('winboat', st), log: (...a) => console.log('[winboat]', ...a) }));
+const wb = () => wbBridge || (wbBridge = require('./winboat').createBridge({ onState: (st) => { send('winboat', st); if (st && st.step === 'uploading') showWindow(); }, log: (...a) => console.log('[winboat]', ...a) }));
 ipcMain.handle('lamp:wb-status', () => wb().status());
 ipcMain.handle('lamp:wb-pick', async (_e, kind) => {
   if (wb().busy) return { error: 'busy' };
