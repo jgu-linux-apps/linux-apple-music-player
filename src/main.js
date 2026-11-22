@@ -489,6 +489,11 @@ ipcMain.handle('lamp:wb-pick', async (_e, kind) => {
 ipcMain.on('lamp:wb', (_e, a) => {
   if (a === 'close') wb().closeWindow();
   else if (a === 'show') wb().showApple();
+  else if (a === 'install') wb().installComponents();
+  else if (a === 'winboat') wb().openWinboat();
+  else if (a === 'reboot') wb().reboot();
+  else if (a === 'installAM') wb().installAppleMusic();
+  else if (a === 'help') shell.openExternal('https://github.com/jgu-linux-apps/linux-apple-music-player#sync-with-iphone-experimental');
   else if (a === 'stop') wb().stopWindows();
   else if (a === 'cancel') wb().cancel();
 });

@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.4.2 — 2026-11-22**
+**Version 0.5.0 — 2026-11-22**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -53,7 +53,13 @@ do it, with **Sync Library** turned on. On Linux the player borrows Apple Music 
 Windows virtual machine managed by [WinBoat](https://github.com/winboat-org/winboat). The Windows window
 shows on your Ubuntu desktop only while a sync runs.
 
-One-time setup:
+One-time setup — the **setup assistant** in **Library → Add from computer** walks you through it and does
+what it can by itself: one **Install** button installs Docker, Docker Compose and FreeRDP 3 from Ubuntu and
+the latest WinBoat `.deb` from its GitHub releases, and adds you to the `docker` group (the system's own
+password dialog asks first); **Open WinBoat** starts WinBoat for installing Windows; **Install Apple Music**
+installs it in Windows from the Microsoft Store (winget) and opens it for signing in. Restarting the computer,
+the Windows installation in WinBoat and signing in with your Apple ID stay with you. By hand, the same is:
+
 
 1. Install Docker, FreeRDP 3 and WinBoat, add yourself to the `docker` group and **restart the computer**
    (logging out is not enough):
@@ -100,6 +106,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.5.0**: **setup assistant** for Sync with iPhone: the panel lists the steps (components, Docker access, Windows in WinBoat, Apple Music in Windows, signing in) with a tick or a button for each — **Install** (Docker, FreeRDP 3 and the latest WinBoat in one administrator prompt), **Restart**, **Open WinBoat**, **Install Apple Music** (Microsoft Store via winget, then the window opens for signing in) — plus **How to set this up?** and **Check again**. When everything is ready the list folds into one green line.
 - **0.4.2**: Sync with iPhone: a "Show Apple Music window" button brings the Apple Music window back when it froze (another client took the Windows session) or was closed too early; the player never leaves a frozen FreeRDP window behind; the panel explains that Apple Music may not respond while it shows "Updating Library…" after a bigger album.
 - **0.4.1**: Sync with iPhone: when Apple Music has taken all the files, the player window comes back to the front with the result; closing the Apple Music window is noticed by the panel, which then offers to shut Windows down.
 - **0.4.0**: **Sync with iPhone (experimental)**: Library → Add from computer adds songs and album folders from your disk to your Apple Music library (and so to your iPhone) through Apple Music for Windows in WinBoat. The player starts Windows when needed, shows the Apple Music window on the Ubuntu desktop, hands it the files and follows the import step by step; FLAC/OGG are converted to ALAC/AAC on the way.

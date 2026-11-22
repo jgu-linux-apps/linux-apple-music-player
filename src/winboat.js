@@ -14,6 +14,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const { execFile, spawn } = require('child_process');
 
 const CONTAINER = 'WinBoat';
@@ -55,21 +56,53 @@ function health(port) {
   });
 }
 
-// What is missing for the bridge, in the order the user has to fix it.
+function getJSON(port, p, timeout) {
+  return new Promise((resolve) => {
+    const req = http.get({ host: '127.0.0.1', port, path: p, timeout: timeout || 15000 }, (res) => {
+      let d = ''; res.setEncoding('utf8'); res.on('data', (c) => { d += c; });
+      res.on('end', () => { try { resolve(res.statusCode === 200 ? JSON.parse(d.replace(/^﻿/, '')) : null); } catch (_) { resolve(null); } });
+    });
+    req.on('error', () => resolve(null));
+    req.on('timeout', () => { req.destroy(); resolve(null); });
+  });
+}
+const APPLE_MUSIC_STORE_ID = '9PFHDD62MXS1';      // Apple Music in the Microsoft Store (winget, msstore source)
+const isAppleMusic = (a) => /AppleInc\.AppleMusicWin/i.test(String(a && (a.Args || a.Path) || '')) || /^Apple Music\b/i.test(String(a && a.Name || ''));
+const userName = () => os.userInfo().username;
+const inGroup = (g) => { try { return new RegExp(`^${g}:[^:]*:[^:]*:(.*,)?${userName()}(,|$)`, 'm').test(fs.readFileSync('/etc/group', 'utf8')); } catch (_) { return false; } };
+
+// Setup state, one entry per step of the assistant, and the first problem in the order it has to be fixed:
+//   pkgs  – docker, docker compose, FreeRDP 3, WinBoat installed
+//   group – the user is in the docker group and this session already has it (else: restart)
+//   vm    – WinBoat created its Windows machine and shares the home folder
+//   apple – Apple Music installed in Windows (known only while Windows runs; null = unknown)
 async function status() {
-  const s = { docker: false, container: false, running: false, freerdp: false, shared: false, ffmpeg: false, ready: false, problem: '' };
-  s.freerdp = await has('xfreerdp3');
-  s.ffmpeg = await has('ffmpeg');
-  if (await has('docker')) {
+  const s = { ffmpeg: false, running: false, ready: false, problem: '',
+    pkgs: { docker: false, compose: false, freerdp: false, winboat: false }, group: { listed: false, access: false },
+    vm: { exists: false, shared: false }, apple: null };
+  const [docker, freerdp, winboat, ffmpeg] = await Promise.all(['docker', 'xfreerdp3', 'winboat', 'ffmpeg'].map(has));
+  Object.assign(s.pkgs, { docker, freerdp, winboat }); s.ffmpeg = ffmpeg;
+  if (docker) s.pkgs.compose = (await run('docker', ['compose', 'version'])).ok;
+  s.group.listed = inGroup('docker');
+  if (docker) {
     const r = await run('docker', ['inspect', '-f', '{{.State.Running}}', CONTAINER]);
-    s.docker = r.ok || !/permission denied/i.test(r.err);
-    if (/permission denied/i.test(r.err)) s.problem = 'dockerPerm';
-    s.container = r.ok;
+    const denied = /permission denied/i.test(r.err);
+    s.group.access = !denied && (r.ok || /no such object|not found/i.test(r.err) || (await run('docker', ['info', '--format', '{{.ID}}'])).ok);
+    s.vm.exists = r.ok;
     s.running = r.ok && r.out === 'true';
   }
   const c = credentials();
-  s.shared = !!(c && c.shared && c.user && c.pass);
-  if (!s.problem) s.problem = !s.docker ? 'noDocker' : !s.container ? 'noWinboat' : !s.shared ? 'noShare' : !s.freerdp ? 'noFreerdp' : '';
+  s.vm.shared = !!(c && c.shared && c.user && c.pass);
+  if (s.running) {
+    const port = await hostPort(7148);
+    const apps = port ? await getJSON(port, '/apps', 20000) : null;
+    if (Array.isArray(apps)) s.apple = apps.some(isAppleMusic);
+  }
+  const p = s.pkgs;
+  s.problem = !(p.docker && p.compose && p.freerdp && p.winboat) ? 'noPkgs'
+    : !s.group.listed ? 'noGroup' : !s.group.access ? 'needReboot'
+    : !s.vm.exists ? 'noWinboat' : !s.vm.shared ? 'noShare'
+    : s.apple === false ? 'noAppleMusic' : '';
   s.ready = !s.problem;
   return s;
 }
@@ -143,6 +176,42 @@ St @{ step = 'uploading'; done = $total; total = $total }
 function readStatus(job) {
   try { return JSON.parse(fs.readFileSync(path.join(job, 'status.json'), 'utf8').replace(/^\uFEFF/, '')); } catch (_) { return null; }
 }
+
+// ---------- setup helpers ----------
+const UA = { 'User-Agent': 'linux-apple-music-player', Accept: 'application/vnd.github+json' };
+function httpsGet(url, opts, hops) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(url, { headers: UA, timeout: 30000 }, (res) => {
+      if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && (hops || 0) < 6) {
+        res.resume(); return resolve(httpsGet(new URL(res.headers.location, url).toString(), opts, (hops || 0) + 1));
+      }
+      if (res.statusCode !== 200) { res.resume(); return reject(new Error('HTTP ' + res.statusCode)); }
+      resolve(res);
+    });
+    req.on('error', reject);
+    req.on('timeout', () => req.destroy(new Error('timeout')));
+  });
+}
+async function latestWinboatDeb() {
+  const res = await httpsGet('https://api.github.com/repos/winboat-org/winboat/releases/latest');
+  let d = ''; res.setEncoding('utf8'); for await (const c of res) d += c;
+  const rel = JSON.parse(d);
+  const a = (rel.assets || []).find((x) => /^winboat-[\d.]+-amd64\.deb$/.test(x.name));
+  if (!a || !/^https:\/\/github\.com\//.test(a.browser_download_url)) throw new Error('noWinboatDeb');
+  return { url: a.browser_download_url, name: a.name, size: a.size, version: rel.tag_name };
+}
+async function download(url, file, size, onPct) {
+  const res = await httpsGet(url);
+  const tmp = file + '.part';
+  await new Promise((resolve, reject) => {
+    const out = fs.createWriteStream(tmp); let got = 0, last = -1;
+    res.on('data', (c) => { got += c.length; const pct = size ? Math.floor(100 * got / size) : 0; if (pct !== last) { last = pct; onPct(pct); } });
+    res.pipe(out); out.on('finish', resolve); res.on('error', reject); out.on('error', reject);
+  });
+  if (size && fs.statSync(tmp).size !== size) throw new Error('downloadSize');
+  fs.renameSync(tmp, file);
+}
+const shq = (x) => "'" + String(x).replace(/'/g, "'\\''") + "'";
 
 function createBridge({ onState, log }) {
   let busy = false, rdp = null, startedByUs = false, cancelled = false;
@@ -280,6 +349,81 @@ function createBridge({ onState, log }) {
     }
   }
 
+  // ---- setup assistant ----
+  // One administrator prompt (pkexec, the system's own password dialog) installs what is missing:
+  // Docker + Compose + FreeRDP 3 from Ubuntu, WinBoat's .deb from its GitHub releases; then adds the
+  // user to the docker group and starts Docker. The user restarts the computer afterwards.
+  async function installComponents() {
+    if (busy) return { error: 'busy' };
+    busy = true;
+    try {
+      const st = await status();
+      const pk = [];
+      if (!st.pkgs.docker) pk.push('docker.io');
+      if (!st.pkgs.compose) pk.push('docker-compose-v2');
+      if (!st.pkgs.freerdp) pk.push('freerdp3-x11');
+      let deb = '';
+      if (!st.pkgs.winboat) {
+        emit({ step: 'setup', phase: 'find' });
+        const rel = await latestWinboatDeb();
+        const dir = path.join(HOME, '.cache', 'linux-apple-music-player', 'winboat');
+        fs.mkdirSync(dir, { recursive: true });
+        deb = path.join(dir, rel.name);
+        if (!fs.existsSync(deb) || fs.statSync(deb).size !== rel.size) {
+          await download(rel.url, deb, rel.size, (pct) => emit({ step: 'setup', phase: 'download', pct, name: rel.name }));
+        }
+        fs.chmodSync(deb, 0o644);
+        pk.push(deb);
+      }
+      const user = userName();
+      if (!/^[a-z_][a-z0-9_-]*\$?$/i.test(user)) throw new Error('badUser');
+      const lines = ['set -e'];
+      if (pk.length) lines.push(`apt-get install -y ${pk.map(shq).join(' ')} || { apt-get update && apt-get install -y ${pk.map(shq).join(' ')}; }`);
+      lines.push(`usermod -aG docker ${shq(user)}`, 'systemctl enable --now docker');
+      emit({ step: 'setup', phase: 'install' });
+      const r = await run('pkexec', ['/bin/sh', '-c', lines.join('\n')], { timeout: 1800000 });
+      if (!r.ok) throw new Error(r.code === 126 || r.code === 127 ? 'authCancelled' : 'installFailed');
+      emit({ step: 'setup', phase: 'installed' });
+      return { ok: true };
+    } catch (e) { const m = String(e && e.message || e); emit({ step: 'error', error: m }); return { error: m }; }
+    finally { busy = false; }
+  }
+
+  function openWinboat() {
+    try { const p = spawn('winboat', [], { detached: true, stdio: 'ignore' }); p.on('error', () => {}); p.unref(); return { ok: true }; }
+    catch (e) { return { error: String(e.message || e) }; }
+  }
+  function reboot() {
+    // GNOME's own dialog asks the user to confirm
+    const p = spawn('gnome-session-quit', ['--reboot'], { detached: true, stdio: 'ignore' }); p.on('error', () => {}); p.unref();
+    return { ok: true };
+  }
+
+  // Installs Apple Music in Windows from the Microsoft Store (winget), then opens it for signing in.
+  async function installAppleMusic() {
+    if (busy) return { error: 'busy' };
+    busy = true;
+    try {
+      const st = await status();
+      if (['noPkgs', 'noGroup', 'needReboot', 'noWinboat', 'noShare'].includes(st.problem)) throw new Error(st.problem);
+      await ensureWindows();
+      emit({ step: 'setup', phase: 'amInstall' });
+      fs.mkdirSync(JOBS, { recursive: true });
+      const ps = path.join(JOBS, 'install-apple-music.ps1');
+      fs.writeFileSync(ps, '﻿' + `winget install --id ${APPLE_MUSIC_STORE_ID} --source msstore --accept-package-agreements --accept-source-agreements --disable-interactivity --silent\nStart-Sleep 3\nStart-Process 'AppleMusic.exe'\nStart-Sleep 10\n`);
+      const proc = await openSession(`Get-Content -Raw -LiteralPath '${winPath(ps)}' | Invoke-Expression`);
+      const port = await hostPort(7148);
+      for (let t = 0; t < 200; t++) {        // up to ~10 min for the Store download
+        await sleep(3000);
+        const apps = await getJSON(port, '/apps', 20000);
+        if (Array.isArray(apps) && apps.some(isAppleMusic)) { emit({ step: 'setup', phase: 'amInstalled' }); return { ok: true }; }
+        if (proc.exitCode !== null && t > 20) break;
+      }
+      throw new Error('amInstallFailed');
+    } catch (e) { const m = String(e && e.message || e); emit({ step: 'error', error: m }); return { error: m }; }
+    finally { busy = false; }
+  }
+
   // Close the Apple Music window (ends the RemoteApp session; Apple Music keeps running in Windows).
   function closeWindow() { killRdp(); }
   async function stopWindows() {
@@ -292,7 +436,7 @@ function createBridge({ onState, log }) {
   }
   function cancel() { cancelled = true; closeWindow(); }
 
-  return { status, add, showApple, closeWindow, stopWindows, cancel, get busy() { return busy; }, get sessionOpen() { return !!rdp; }, get startedByUs() { return startedByUs; } };
+  return { status, add, showApple, installComponents, openWinboat, reboot, installAppleMusic, closeWindow, stopWindows, cancel, get busy() { return busy; }, get sessionOpen() { return !!rdp; }, get startedByUs() { return startedByUs; } };
 }
 
 module.exports = { createBridge, collect, DIRECT, CONVERT };

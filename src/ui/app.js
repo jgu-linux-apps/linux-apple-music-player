@@ -34,13 +34,20 @@
     wbS_prepare: 'Przygotowuję pliki', wbS_boot: 'Uruchamiam Windows (WinBoat)…', wbS_connect: 'Łączę z Windows…', wbS_start: 'Otwieram Apple Music…', wbS_copy: 'Przekazuję pliki do Windows',
     wbS_import: 'Apple Music dodaje utwory do biblioteki', wbS_uploading: 'Gotowe: utwory są w bibliotece',
     wbUploadNote: 'Apple Music wysyła je teraz do iCloud. Zostaw jego okno otwarte, aż na dole zniknie „Uaktualniam bibliotekę…” (przy większych albumach kilka–kilkanaście minut; okno może wtedy chwilowo nie reagować), potem je zamknij. Gdy okno zastygnie lub zniknie, kliknij „Pokaż okno Apple Music”. Utwory pojawią się na iPhonie i tutaj w Ostatnio dodanych.',
-    wbCloseWin: 'Zamknij okno Apple Music', wbStop: 'Wyłącz Windows', wbS_stopping: 'Wyłączam Windows…', wbS_stopped: 'Windows wyłączony', wbCancel: 'Przerwij', wbS_closed: 'Okno Apple Music zamknięte', wbShow: 'Pokaż okno Apple Music', wbS_shown: 'Okno Apple Music otwarte', wbClosedNote: 'Jeśli wysyłanie do iCloud jeszcze trwało, dokończy się przy następnym otwarciu Apple Music. Windows możesz teraz wyłączyć.',
+    wbCloseWin: 'Zamknij okno Apple Music', wbStop: 'Wyłącz Windows', wbS_stopping: 'Wyłączam Windows…', wbS_stopped: 'Windows wyłączony', wbCancel: 'Przerwij', wbSt1: 'Składniki: Docker, FreeRDP 3, WinBoat', wbSt1h: 'Brakuje: ', wbInstall: 'Zainstaluj', wbSt2: 'Dostęp do Dockera', wbSt2h: 'Doda Cię do grupy docker (razem z instalacją).',
+    wbSt2r: 'Jesteś już w grupie docker: uruchom komputer ponownie, żeby zadziałało (wylogowanie nie wystarcza).', wbReboot: 'Uruchom ponownie',
+    wbSt3: 'Windows w WinBoat', wbSt3h: 'Otwórz WinBoat, zainstaluj Windows 11 i zgódź się na udostępnienie katalogu domowego (ok. 30–60 min).', wbOpenWB: 'Otwórz WinBoat',
+    wbSt4: 'Apple Music w Windows', wbSt4h: 'Zainstaluje Apple Music ze Sklepu Microsoft.', wbSt4u: 'Sprawdzę, gdy Windows będzie włączony.', wbInstallAM: 'Zainstaluj Apple Music',
+    wbSt5: 'Zaloguj się i włącz synchronizację', wbSt5h: 'W oknie Apple Music zaloguj się swoim Apple ID i włącz Ustawienia → Ogólne → „Synchronizuj bibliotekę”. Wystarczy raz.',
+    wbHelp: 'Jak to skonfigurować?', wbRecheck: 'Sprawdź ponownie',
+    wbP_find: 'Szukam najnowszego WinBoat…', wbP_download: 'Pobieram WinBoat', wbP_install: 'Instaluję składniki (potwierdź hasłem w oknie systemowym)…', wbP_installed: 'Składniki zainstalowane',
+    wbP_rebootNote: 'Uruchom teraz komputer ponownie, potem wróć tutaj i otwórz WinBoat, żeby zainstalować Windows.', wbP_amInstall: 'Instaluję Apple Music w Windows (Sklep Microsoft)…', wbP_amInstalled: 'Apple Music zainstalowany', wbS_closed: 'Okno Apple Music zamknięte', wbShow: 'Pokaż okno Apple Music', wbS_shown: 'Okno Apple Music otwarte', wbClosedNote: 'Jeśli wysyłanie do iCloud jeszcze trwało, dokończy się przy następnym otwarciu Apple Music. Windows możesz teraz wyłączyć.',
     wbSkipped: 'pominięte (brak ffmpeg lub błąd konwersji): ', wbBusy: 'Synchronizacja już trwa',
     wbE: { dockerPerm: 'Brak dostępu do Dockera: dodaj się do grupy docker i uruchom komputer ponownie.', noDocker: 'Nie znaleziono Dockera. Zainstaluj WinBoat razem z Dockerem.',
       noWinboat: 'Nie znaleziono maszyny WinBoat. Zainstaluj w WinBoat Windows, a w nim Apple Music.', noShare: 'WinBoat nie udostępnia katalogu domowego w Windows (opcja przy instalacji WinBoat).',
       noFreerdp: 'Brak FreeRDP 3 (pakiet freerdp3-x11).', noAudio: 'Nie znaleziono plików audio.', noAutoFolder: 'Apple Music w Windows nie ma jeszcze biblioteki: otwórz go raz w WinBoat i zaloguj się.',
       importTimeout: 'Apple Music nie przyjął wszystkich plików na czas.', bootTimeout: 'Windows nie uruchomił się w ciągu 5 minut.', rdpFailed: 'Nie udało się połączyć z Windows (RDP).',
-      sessionClosed: 'Okno Windows zostało zamknięte przed końcem.', cancelled: 'Przerwano.', dockerStop: 'Nie udało się wyłączyć Windows.' }
+      sessionClosed: 'Okno Windows zostało zamknięte przed końcem.', cancelled: 'Przerwano.', dockerStop: 'Nie udało się wyłączyć Windows.', noPkgs: 'Brakuje składników: zainstaluj je poniżej.', noGroup: 'Nie masz dostępu do Dockera: zainstaluj składniki poniżej.', needReboot: 'Uruchom komputer ponownie, żeby zadziałał dostęp do Dockera.', noAppleMusic: 'W Windows nie ma Apple Music: zainstaluj go poniżej.', authCancelled: 'Anulowano okno z hasłem.', installFailed: 'Instalacja składników nie powiodła się (sprawdź internet i apt).', noWinboatDeb: 'Nie znaleziono paczki WinBoat w jego wydaniach na GitHubie.', downloadSize: 'Pobieranie WinBoat nie powiodło się.', amInstallFailed: 'Nie udało się zainstalować Apple Music (Sklep Microsoft). Spróbuj ręcznie w WinBoat.', badUser: 'Nietypowa nazwa użytkownika.' }
   } : {
     search: 'Search', appleMusic: 'Apple Music', home: 'Home', library: 'Library', recent: 'Recently Added', artists: 'Artists',
     albums: 'Albums', songs: 'Songs', playlists: 'Playlists', recentlyPlayed: 'Recently Played', heavy: 'Heavy Rotation', madeForYou: 'Made for You',
@@ -61,13 +68,20 @@
     wbS_prepare: 'Preparing files', wbS_boot: 'Starting Windows (WinBoat)…', wbS_connect: 'Connecting to Windows…', wbS_start: 'Opening Apple Music…', wbS_copy: 'Handing the files to Windows',
     wbS_import: 'Apple Music is adding the songs to your library', wbS_uploading: 'Done: the songs are in your library',
     wbUploadNote: 'Apple Music is now uploading them to iCloud. Keep its window open until “Updating Library…” at the bottom is gone (a few to a dozen minutes for bigger albums; the window may not respond for a while meanwhile), then close it. If the window freezes or disappears, click “Show Apple Music window”. The songs will show on your iPhone and here in Recently Added.',
-    wbCloseWin: 'Close Apple Music window', wbStop: 'Shut down Windows', wbS_stopping: 'Shutting down Windows…', wbS_stopped: 'Windows is off', wbCancel: 'Stop', wbS_closed: 'Apple Music window closed', wbShow: 'Show Apple Music window', wbS_shown: 'Apple Music window is open', wbClosedNote: 'If the iCloud upload was still running, it finishes the next time Apple Music opens. You can shut Windows down now.',
+    wbCloseWin: 'Close Apple Music window', wbStop: 'Shut down Windows', wbS_stopping: 'Shutting down Windows…', wbS_stopped: 'Windows is off', wbCancel: 'Stop', wbSt1: 'Components: Docker, FreeRDP 3, WinBoat', wbSt1h: 'Missing: ', wbInstall: 'Install', wbSt2: 'Docker access', wbSt2h: 'Adds you to the docker group (together with the install).',
+    wbSt2r: 'You are in the docker group already: restart the computer for it to work (logging out is not enough).', wbReboot: 'Restart',
+    wbSt3: 'Windows in WinBoat', wbSt3h: 'Open WinBoat, install Windows 11 and allow it to share your home folder (about 30–60 min).', wbOpenWB: 'Open WinBoat',
+    wbSt4: 'Apple Music in Windows', wbSt4h: 'Installs Apple Music from the Microsoft Store.', wbSt4u: 'Checked while Windows is running.', wbInstallAM: 'Install Apple Music',
+    wbSt5: 'Sign in and turn on sync', wbSt5h: 'In the Apple Music window sign in with your Apple ID and turn on Settings → General → “Sync Library”. Once is enough.',
+    wbHelp: 'How to set this up?', wbRecheck: 'Check again',
+    wbP_find: 'Looking for the latest WinBoat…', wbP_download: 'Downloading WinBoat', wbP_install: 'Installing the components (confirm with your password in the system dialog)…', wbP_installed: 'Components installed',
+    wbP_rebootNote: 'Restart the computer now, then come back here and open WinBoat to install Windows.', wbP_amInstall: 'Installing Apple Music in Windows (Microsoft Store)…', wbP_amInstalled: 'Apple Music installed', wbS_closed: 'Apple Music window closed', wbShow: 'Show Apple Music window', wbS_shown: 'Apple Music window is open', wbClosedNote: 'If the iCloud upload was still running, it finishes the next time Apple Music opens. You can shut Windows down now.',
     wbSkipped: 'skipped (no ffmpeg or conversion failed): ', wbBusy: 'A sync is already running',
     wbE: { dockerPerm: 'No access to Docker: add yourself to the docker group and restart the computer.', noDocker: 'Docker not found. Install WinBoat together with Docker.',
       noWinboat: 'No WinBoat machine found. Install Windows in WinBoat and Apple Music in it.', noShare: 'WinBoat does not share your home folder with Windows (an option when installing WinBoat).',
       noFreerdp: 'FreeRDP 3 is missing (package freerdp3-x11).', noAudio: 'No audio files found.', noAutoFolder: 'Apple Music in Windows has no library yet: open it once in WinBoat and sign in.',
       importTimeout: 'Apple Music did not take all the files in time.', bootTimeout: 'Windows did not start within 5 minutes.', rdpFailed: 'Could not connect to Windows (RDP).',
-      sessionClosed: 'The Windows window was closed before the end.', cancelled: 'Stopped.', dockerStop: 'Could not shut down Windows.' }
+      sessionClosed: 'The Windows window was closed before the end.', cancelled: 'Stopped.', dockerStop: 'Could not shut down Windows.', noPkgs: 'Components are missing: install them below.', noGroup: 'No access to Docker: install the components below.', needReboot: 'Restart the computer for Docker access to work.', noAppleMusic: 'Apple Music is not installed in Windows: install it below.', authCancelled: 'The password dialog was cancelled.', installFailed: 'Installing the components failed (check the internet and apt).', noWinboatDeb: 'No WinBoat package found in its GitHub releases.', downloadSize: 'Downloading WinBoat failed.', amInstallFailed: 'Could not install Apple Music (Microsoft Store). Try by hand in WinBoat.', badUser: 'Unusual user name.' }
   };
 
   // ======================= helpers =======================
@@ -445,6 +459,8 @@
     box.appendChild(card); $('#app').appendChild(box);
     const stat = el('div', { class: 'wbstat' }), step = el('div', { class: 'wbstep' }), bar = el('div', { class: 'wbbar' }, el('i'));
     const note = el('div', { class: 'pnote wbnote' }), acts = el('div', { class: 'prow btns wbacts' });
+    const setup = el('div', { class: 'wbsetup' });
+    let lastSt = null;
     const bFolder = el('button', { class: 'btn', text: S.wbFolder, onclick: () => pick('folder') });
     const bFiles = el('button', { class: 'btn sec', text: S.wbFiles, onclick: () => pick('files') });
     const bCancel = el('button', { class: 'btn sec', text: S.wbCancel, onclick: () => window.lamp.wb('cancel') });
@@ -454,20 +470,44 @@
     card.append(
       el('div', { class: 'sheethead' }, el('h2', { text: S.wbTitle }), el('span', { class: 'wbexp', text: S.wbExp }),
         el('button', { class: 'ib', title: S.close, onclick: () => close() }, icon('close'))),
-      el('div', { class: 'pnote', text: S.wbIntro }), stat,
+      el('div', { class: 'pnote', text: S.wbIntro }), stat, setup,
       el('div', { class: 'prow btns' }, bFolder, bFiles),
       el('div', { class: 'pnote', text: S.wbFormats }),
       el('div', { class: 'wbprog' }, step, bar, note), acts);
     let running = false, uploaded = false;
     const errText = (e) => (S.wbE[String(e).split(':')[0]] || (S.error + e));
     function setBtns() { bFolder.disabled = bFiles.disabled = running; }
+    const act = (t, a, sec) => el('button', { class: 'btn' + (sec ? ' sec' : ''), text: t, onclick: () => window.lamp.wb(a) });
+    function row(state, title, hint, button) {
+      return el('div', { class: 'wbrow ' + state }, el('span', { class: 'wbdot' }),
+        el('div', { class: 'wbrt' }, el('b', { text: title }), hint ? el('small', { text: hint }) : null), button || null);
+    }
+    function renderSetup(s) {
+      const p = s.pkgs, pkOk = p.docker && p.compose && p.freerdp && p.winboat;
+      const miss = [!p.docker && 'Docker', !p.compose && 'Docker Compose', !p.freerdp && 'FreeRDP 3', !p.winboat && 'WinBoat'].filter(Boolean).join(', ');
+      const grOk = s.group.listed && s.group.access, vmOk = s.vm.exists && s.vm.shared;
+      const st = (ok, can) => ok ? 'ok' : can ? 'todo' : 'wait';
+      setup.replaceChildren(
+        row(st(pkOk, true), S.wbSt1, pkOk ? '' : S.wbSt1h + miss, pkOk ? null : act(S.wbInstall, 'install')),
+        row(st(grOk, pkOk), S.wbSt2, grOk ? '' : (s.group.listed ? S.wbSt2r : S.wbSt2h), !grOk && s.group.listed ? act(S.wbReboot, 'reboot') : (!grOk && pkOk ? act(S.wbInstall, 'install', true) : null)),
+        row(st(vmOk, grOk), S.wbSt3, vmOk ? '' : (s.vm.exists ? S.wbE.noShare : S.wbSt3h), !vmOk && grOk ? act(S.wbOpenWB, 'winboat') : null),
+        row(s.apple === true ? 'ok' : s.apple === false ? 'todo' : 'wait', S.wbSt4, s.apple === true ? '' : s.apple === false ? S.wbSt4h : (vmOk ? S.wbSt4u : ''),
+          vmOk && s.apple !== true ? act(S.wbInstallAM, 'installAM', s.apple === null) : null),
+        row(s.apple === true ? 'info' : 'wait', S.wbSt5, S.wbSt5h, s.apple === true ? act(S.wbShow, 'show', true) : null),
+        el('div', { class: 'wbfoot' },
+          el('button', { class: 'lnk', text: S.wbHelp, onclick: () => window.lamp.wb('help') }),
+          el('button', { class: 'lnk', text: S.wbRecheck, onclick: () => check() })));
+      setup.classList.toggle('done', !!s.ready);
+    }
     async function check() {
       stat.className = 'wbstat'; stat.textContent = S.wbChecking;
-      const s = await window.lamp.wbStatus();
+      const s = await window.lamp.wbStatus(); lastSt = s;
       if (s.ready) { stat.classList.add('ok'); stat.textContent = s.running ? S.wbReadyOn : S.wbReadyOff; }
       else { stat.classList.add('bad'); stat.textContent = errText(s.problem); }
+      renderSetup(s);
       bFolder.disabled = bFiles.disabled = running || !s.ready;
     }
+    stat.addEventListener('click', () => { if (lastSt && lastSt.ready) setup.classList.toggle('done'); });
     async function pick(kind) {
       const r = await window.lamp.wbPick(kind);
       if (r && r.error === 'busy') toast(S.wbBusy);
@@ -476,6 +516,18 @@
       if (!st) return;
       card.classList.add('active');
       if (st.step === 'prepare') uploaded = false;
+      if (st.step === 'setup') {
+        running = !['installed', 'amInstalled'].includes(st.phase);
+        step.className = 'wbstep' + (running ? '' : ' ok');
+        step.textContent = S['wbP_' + st.phase] + (st.phase === 'download' ? ` ${st.pct || 0}%` : '');
+        bar.classList.toggle('busy', !['download', 'installed', 'amInstalled'].includes(st.phase));
+        bar.firstChild.style.width = st.phase === 'download' ? (st.pct || 0) + '%' : running ? '8%' : '100%';
+        note.textContent = st.phase === 'installed' ? S.wbP_rebootNote : st.phase === 'amInstalled' ? S.wbSt5h : '';
+        acts.replaceChildren(); if (st.phase === 'installed') acts.append(act(S.wbReboot, 'reboot'));
+        if (!running) check();
+        setBtns(); if (!box.classList.contains('open')) open();
+        return;
+      }
       const n = st.total ? ` ${st.step === 'copy' ? (st.copied || 0) : (st.done || 0)} / ${st.total}` : '';
       const pct = st.total ? Math.round(100 * (st.step === 'copy' ? (st.copied || 0) : (st.done || 0)) / st.total) : 0;
       bar.firstChild.style.width = (['boot', 'connect', 'start'].includes(st.step) ? 8 : pct) + '%';

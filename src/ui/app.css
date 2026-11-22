@@ -489,3 +489,20 @@ body.aurora .wbbar i { background: var(--grad); }
 .wbnote:empty { display: none; }
 .wbacts:empty { display: none; }
 .btn:disabled { opacity: .45; pointer-events: none; }
+
+.wbsetup { margin: 6px 0 12px; display: grid; gap: 2px; }
+.wbsetup.done .wbrow, .wbsetup.done .wbfoot { display: none; }
+.wbstat { cursor: default; }
+.wbrow { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.wbrow .wbrt { flex: 1; min-width: 0; display: grid; }
+.wbrow b { font-size: 13px; font-weight: 600; }
+.wbrow small { font-size: 12px; color: var(--fg2); line-height: 1.35; }
+.wbrow .btn { height: 30px; padding: 0 14px; font-size: 13px; flex: none; }
+.wbdot { width: 18px; height: 18px; flex: none; border-radius: 50%; border: 2px solid var(--fg3); box-sizing: border-box; }
+.wbrow.ok .wbdot { border: 0; background: #34c759 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9.5 16.2 5.3 12l-1.4 1.4 5.6 5.6L20.1 8.4 18.7 7z'/%3E%3C/svg%3E") center/14px no-repeat; }
+.wbrow.todo .wbdot { border-color: var(--accent); }
+.wbrow.info .wbdot { border-color: var(--accent2, var(--accent)); border-style: dashed; }
+.wbrow.wait { opacity: .55; }
+.wbfoot { display: flex; gap: 16px; padding-top: 8px; }
+.lnk { color: var(--accent); font-size: 13px; font-weight: 600; padding: 0; background: none; }
+.lnk:hover { text-decoration: underline; }
