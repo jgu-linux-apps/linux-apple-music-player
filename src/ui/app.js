@@ -295,7 +295,7 @@
     return { body, cnt };
   }
   const navItem = (r, t, i) => el('button', { class: 'nitem', 'data-r': r, onclick: () => go(r, {}, { root: true }) },
-    icon(i), el('span', { text: t }), el('span', { class: 'ncount' }));
+    icon(i), el('span', { text: t }));
   group('am', S.appleMusic).body.append(navItem('home', S.home, 'home'), navItem('radio', S.radio, 'radio'));
   const gLib = group('lib', S.library);
   gLib.body.append(navItem('recent', S.recent, 'clock'), navItem('artists', S.artists, 'mic'),
@@ -349,7 +349,7 @@
     try {
       const out = (await fetchAll(lib('/playlists?limit=100'))).map(norm);
       myPlaylists = out;  // all playlists (also those inside folders), used by "Add to Playlist"
-      gPl.cnt.textContent = out.length ? String(out.length) : '';
+      void out.length;
       // Playlist folders as in Apple Music; without folders (or if the API refuses) a plain list
       let root = [];
       try { root = await fetchAll(lib('/playlist-folders/p.playlistsroot/children?limit=100')); } catch (_) {}
@@ -360,14 +360,22 @@
     } catch (e) { console.warn('playlists', e); }
   }
   // numbers next to Artists / Albums / Songs (shown in the Dock layout)
+  // item counts of Artists / Albums / Songs, shown small next to the page title
+  const counts = {}, countExtra = { albums: 0 };
+  const fmtN = (n) => n.toLocaleString(PL ? 'pl-PL' : 'en-US');
+  function showCount(r) {
+    const c = view.querySelector(`.vhead .hcount[data-r="${r}"]`);
+    if (c && counts[r] != null) c.textContent = fmtN(counts[r] + (countExtra[r] || 0));
+  }
   function loadCounts() {
     for (const r of ['artists', 'albums', 'songs']) {
       api(lib(`/${r}?limit=1`), { fresh: true }).then((x) => {
-        const n = x && x.meta && x.meta.total; const c = nav.querySelector(`.nitem[data-r="${r}"] .ncount`);
-        if (c && n) c.textContent = n.toLocaleString(PL ? 'pl-PL' : 'en-US');
+        const n = x && x.meta && x.meta.total;
+        if (n != null) { counts[r] = n; showCount(r); }
       }).catch(() => {});
     }
   }
+  function headCount(h, r) { h.appendChild(el('span', { class: 'hcount', 'data-r': r })); showCount(r); }
   $('.brand span').textContent = cfg.name;
   $('#ver').append(el('div', { text: `${cfg.name} ${cfg.version} · ${cfg.date}` }), el('div', { class: 'credit', text: 'Created by: JGu' }), el('div', { class: 'credit', text: 'Supported by Claude' }));
 
@@ -687,9 +695,9 @@
     })();
   };
 
-  function gridView(title, path, cardOpts) {
+  function gridView(title, path, cardOpts, countKey) {
     return (node) => {
-      head(title, node);
+      const hh = head(title, node); if (countKey) headCount(hh, countKey);
       const pad = el('div', { class: 'pad' }); node.appendChild(pad);
       const grid = el('div', { class: 'grid' }); pad.appendChild(grid);
       infinite(grid, path, (items) => { const f = document.createDocumentFragment(); items.forEach((i) => f.appendChild(card(i, cardOpts))); grid.appendChild(f); },
@@ -708,7 +716,7 @@
     return out;
   }
   ROUTES.albums = (node) => {
-    head(S.albums, node);
+    headCount(head(S.albums, node), 'albums');
     const pad = el('div', { class: 'pad' }); node.appendChild(pad);
     const grid = el('div', { class: 'grid' }); pad.appendChild(grid);
     const key = (name, artist) => String(name || '').trim().toLowerCase() + '\u0000' + String(artist || '').trim().toLowerCase();
@@ -740,13 +748,14 @@
           songAlbums.set(id, { name, artist, songs: sorted, artwork: a0.artwork, date: a0.releaseDate || '', genre: (a0.genreNames || [])[0] || '' });
           grid.appendChild(card({ id, type: 'lamp-song-album', kind: 'album', lib: true, name, artist, artwork: a0.artwork, count: sorted.length, raw: null }));
         }
+        countExtra.albums = n; showCount('albums');
       } catch (e) { console.warn('song albums', e); }
     })();
   };
-  ROUTES.artists = gridView(S.artists, lib('/artists?limit=100&include=catalog'), { sub: '', size: 280 });
+  ROUTES.artists = gridView(S.artists, lib('/artists?limit=100&include=catalog'), { sub: '', size: 280 }, 'artists');
 
   ROUTES.songs = (node) => {
-    head(S.songs, node);
+    headCount(head(S.songs, node), 'songs');
     const tl = trackList([], { ctx: 'library-songs' });
     node.appendChild(tl.node);
     infinite(tl.list, lib('/songs?limit=100&include=albums'), tl.add, () => tl.node.appendChild(el('div', { class: 'empty', text: S.empty })));

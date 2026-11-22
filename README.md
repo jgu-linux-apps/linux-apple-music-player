@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.5.2 — 2026-11-22**
+**Version 0.5.3 — 2026-11-22**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -106,6 +106,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.5.3**: the numbers left the sidebar; Artists, Albums and Songs show their count small next to the page title instead (Albums counts the albums built from songs too).
 - **0.5.2**: Albums also lists albums that exist in your library only through their songs — as happens with songs added from a computer and matched to the Apple Music catalog (e.g. by Sync with iPhone); music.apple.com shows them the same way. They open as a normal album page and play in track order.
 - **0.5.1**: your library always comes fresh from Apple: the browser cache no longer keeps an old list of albums, songs or recently added items across restarts, so albums added through Sync with iPhone (or on another device) show up right away.
 - **0.5.0**: **setup assistant** for Sync with iPhone: the panel lists the steps (components, Docker access, Windows in WinBoat, Apple Music in Windows, signing in) with a tick or a button for each — **Install** (Docker, FreeRDP 3 and the latest WinBoat in one administrator prompt), **Restart**, **Open WinBoat**, **Install Apple Music** (Microsoft Store via winget, then the window opens for signing in) — plus **How to set this up?** and **Check again**. When everything is ready the list folds into one green line.
