@@ -184,7 +184,10 @@
       const headers = { Authorization: 'Bearer ' + devToken };
       if (mk && mk.musicUserToken) headers['Media-User-Token'] = mk.musicUserToken;
       if (opts.body) headers['Content-Type'] = 'application/json';
-      const r = await fetch(url, { method, headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
+      // your library (/v1/me/…) always comes from Apple: the browser's HTTP cache would otherwise keep, even
+      // across restarts, a list from before songs were added (e.g. by Sync with iPhone)
+      const r = await fetch(url, { method, headers, body: opts.body ? JSON.stringify(opts.body) : undefined,
+        cache: url.includes('/v1/me/') ? 'no-store' : 'default' });
       if (r.status === 401 && !sessionStorage.getItem('lamp.tokenRetry')) {
         sessionStorage.setItem('lamp.tokenRetry', '1');
         await window.lamp.token(true); window.lamp.reload(); return new Promise(() => {});
