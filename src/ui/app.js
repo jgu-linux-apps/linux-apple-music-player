@@ -704,53 +704,81 @@
         () => pad.appendChild(el('div', { class: 'empty', text: S.empty })));
     };
   }
-  ROUTES.recent = gridView(S.recent, lib('/recently-added?limit=25'));
-  // Albums. Songs added from a computer and matched to the catalog (e.g. by Sync with iPhone) can sit in the
-  // library without a library-album entry; music.apple.com still shows them as albums, built from the songs.
-  // So after the albums, the library songs are scanned and albums that only exist through their songs are
-  // added at the end ("song albums", opened from the songs we already have).
+  // Songs added from a computer and matched to the catalog (e.g. by Sync with iPhone) can sit in the library
+  // without a library-album entry; music.apple.com still shows them as albums, built from the songs. The
+  // library index below holds the library albums plus such "song albums" (each with the date it was added),
+  // for Albums, Recently Added and the artist page. It is rebuilt after a minute.
   const songAlbums = new Map();
   async function allPages(first, cap) {
     const out = []; let next = first;
-    while (next && out.length < cap) { const r = await api(next); out.push(...(r.data || [])); next = r.next || null; }
+    while (next && out.length < cap) { const r = await api(next, { fresh: true }); out.push(...(r.data || [])); next = r.next || null; }
     return out;
   }
+  const lkey = (x) => String(x || '').trim().toLowerCase();
+  let libIdx = null, libIdxAt = 0;
+  function libraryIndex() {
+    if (libIdx && Date.now() - libIdxAt < 60000) return libIdx;
+    libIdxAt = Date.now();
+    libIdx = (async () => {
+      const [albums, songs] = await Promise.all([allPages(lib('/albums?limit=100'), 5000), allPages(lib('/songs?limit=100'), 20000)]);
+      const names = new Set(albums.map((r) => lkey(r.attributes && r.attributes.name)));
+      const groups = new Map();
+      for (const r of songs) {
+        const a = r.attributes || {};
+        if (!a.albumName || names.has(lkey(a.albumName))) continue;
+        const g = groups.get(a.albumName) || { songs: [], artists: new Map() };
+        g.songs.push(r); g.artists.set(a.artistName, (g.artists.get(a.artistName) || 0) + 1);
+        groups.set(a.albumName, g);
+      }
+      const extra = [];
+      let n = 0;
+      for (const [name, g] of groups) {
+        const artist = [...g.artists.entries()].sort((x, y) => y[1] - x[1])[0][0] || '';
+        const sorted = g.songs.slice().sort((x, y) => ((x.attributes.discNumber || 1) - (y.attributes.discNumber || 1)) || ((x.attributes.trackNumber || 0) - (y.attributes.trackNumber || 0)));
+        const id = 'sa.' + (n++) + '.' + encodeURIComponent(name).slice(0, 40);
+        const a0 = sorted[0].attributes;
+        const added = sorted.reduce((m, r) => (r.attributes.dateAdded && r.attributes.dateAdded > m ? r.attributes.dateAdded : m), '');
+        songAlbums.set(id, { name, artist, songs: sorted, artwork: a0.artwork, date: a0.releaseDate || '', genre: (a0.genreNames || [])[0] || '' });
+        extra.push({ id, type: 'lamp-song-album', kind: 'album', lib: true, name, artist, artwork: a0.artwork, count: sorted.length, added, raw: null });
+      }
+      return { albums: albums.map(norm).filter(Boolean), extra };
+    })();
+    libIdx.catch(() => { libIdx = null; });
+    return libIdx;
+  }
+  const addedOf = (it) => (it.raw && it.raw.attributes && (it.raw.attributes.dateAdded || it.raw.attributes.lastModifiedDate)) || it.added || '';
+
+  // Recently Added: Apple's list plus the song albums, newest first.
+  ROUTES.recent = (node) => {
+    head(S.recent, node);
+    const pad = el('div', { class: 'pad' }); node.appendChild(pad);
+    const grid = el('div', { class: 'grid' }); pad.appendChild(grid);
+    const sp = spinner(); pad.appendChild(sp);
+    (async () => {
+      const [rec, idx] = await Promise.all([api(lib('/recently-added?limit=25'), { fresh: true }).catch(() => ({ data: [] })), libraryIndex().catch(() => null)]);
+      sp.remove();
+      const items = (rec.data || []).map(norm).filter(Boolean);
+      const seen = new Set(items.map((i) => lkey(i.name)));
+      const oldest = items.length >= 25 ? items.map(addedOf).filter(Boolean).sort()[0] || '' : '';
+      if (idx) idx.extra.forEach((x) => { if (!seen.has(lkey(x.name)) && (!oldest || x.added >= oldest)) items.push(x); });
+      items.sort((x, y) => (addedOf(y) > addedOf(x) ? 1 : addedOf(y) < addedOf(x) ? -1 : 0));
+      if (!items.length) { pad.appendChild(el('div', { class: 'empty', text: S.empty })); return; }
+      const f = document.createDocumentFragment(); items.forEach((i) => f.appendChild(card(i))); grid.appendChild(f);
+    })();
+  };
+
+  // Albums: Apple's list (scrolls on) plus the song albums at the end.
   ROUTES.albums = (node) => {
     headCount(head(S.albums, node), 'albums');
     const pad = el('div', { class: 'pad' }); node.appendChild(pad);
     const grid = el('div', { class: 'grid' }); pad.appendChild(grid);
-    const key = (name, artist) => String(name || '').trim().toLowerCase() + '\u0000' + String(artist || '').trim().toLowerCase();
-    const known = new Set(), knownName = new Set();
     infinite(grid, lib('/albums?limit=100'), (items) => {
-      const f = document.createDocumentFragment();
-      items.forEach((i) => { known.add(key(i.name, i.artist)); knownName.add(key(i.name, '')); f.appendChild(card(i)); });
-      grid.appendChild(f);
+      const f = document.createDocumentFragment(); items.forEach((i) => f.appendChild(card(i))); grid.appendChild(f);
     }, () => { if (!grid.children.length) pad.appendChild(el('div', { class: 'empty', text: S.empty })); });
-    (async () => {
-      try {
-        const [albums, songs] = await Promise.all([allPages(lib('/albums?limit=100'), 5000), allPages(lib('/songs?limit=100'), 20000)]);
-        albums.forEach((r) => { const a = r.attributes || {}; known.add(key(a.name, a.artistName)); knownName.add(key(a.name, '')); });
-        const groups = new Map();
-        for (const r of songs) {
-          const a = r.attributes || {};
-          if (!a.albumName) continue;
-          if (knownName.has(key(a.albumName, ''))) continue;
-          const g = groups.get(a.albumName) || { songs: [], artists: new Map() };
-          g.songs.push(r); g.artists.set(a.artistName, (g.artists.get(a.artistName) || 0) + 1);
-          groups.set(a.albumName, g);
-        }
-        let n = 0;
-        for (const [name, g] of groups) {
-          const artist = [...g.artists.entries()].sort((x, y) => y[1] - x[1])[0][0] || '';
-          const sorted = g.songs.slice().sort((x, y) => ((x.attributes.discNumber || 1) - (y.attributes.discNumber || 1)) || ((x.attributes.trackNumber || 0) - (y.attributes.trackNumber || 0)));
-          const id = 'sa.' + (n++) + '.' + encodeURIComponent(name).slice(0, 40);
-          const a0 = sorted[0].attributes;
-          songAlbums.set(id, { name, artist, songs: sorted, artwork: a0.artwork, date: a0.releaseDate || '', genre: (a0.genreNames || [])[0] || '' });
-          grid.appendChild(card({ id, type: 'lamp-song-album', kind: 'album', lib: true, name, artist, artwork: a0.artwork, count: sorted.length, raw: null }));
-        }
-        countExtra.albums = n; showCount('albums');
-      } catch (e) { console.warn('song albums', e); }
-    })();
+    libraryIndex().then((idx) => {
+      idx.extra.forEach((x) => grid.appendChild(card(x)));
+      countExtra.albums = idx.extra.length; showCount('albums');
+    }).catch((e) => console.warn('song albums', e));
   };
   ROUTES.artists = gridView(S.artists, lib('/artists?limit=100&include=catalog'), { sub: '', size: 280 }, 'artists');
 
@@ -854,9 +882,17 @@
       try {
         let catId = isLib ? null : args.id;
         if (isLib) {
+          // your albums of this artist, from the library index (the artists/{id}/albums endpoint answers 404
+          // for artists you only have songs of, and misses albums that exist only through their songs)
           const albums = el('div', { class: 'grid' });
-          pad.appendChild(el('div', { class: 'section' }, el('h2', { text: S.inLibrary }), albums));
-          infinite(albums, lib(`/artists/${args.id}/albums?limit=100`), (items) => items.forEach((i) => albums.appendChild(card(i, { sub: i.date ? String(i.date).slice(0, 4) : '' }))));
+          const sec = el('div', { class: 'section' }, el('h2', { text: S.inLibrary }), albums);
+          pad.appendChild(sec);
+          const who = lkey(args.name);
+          libraryIndex().then((idx) => {
+            const mine = idx.albums.concat(idx.extra).filter((i) => who && lkey(i.artist).includes(who));
+            if (!mine.length) { sec.remove(); return; }
+            mine.forEach((i) => albums.appendChild(card(i, { sub: i.date ? String(i.date).slice(0, 4) : '' })));
+          }).catch(() => sec.remove());
           try { const c = await api(lib(`/artists/${args.id}/catalog`)); catId = c.data && c.data[0] && c.data[0].id; } catch (_) {}
         }
         if (catId) {
