@@ -1,6 +1,6 @@
 # Linux Apple Music Player
 
-**Version 0.3.13 — 2026-11-21**
+**Version 0.4.0 — 2026-11-22**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
@@ -32,6 +32,7 @@ A fast, lightweight Apple Music player for Ubuntu. It has its own interface buil
 - Polish UI when the system language is Polish, English otherwise
 - Volume, window size and position are remembered; single instance
 - Launching from a terminal detaches, so closing the terminal does not close the player
+- **Sync with iPhone (experimental)**: add songs and albums from your disk to your Apple Music library, so they are on your iPhone too — through Apple Music for Windows in [WinBoat](https://github.com/winboat-org/winboat); see below
 
 ## Install
 
@@ -44,6 +45,39 @@ sudo apt install ./linux-apple-music-player_<version>_amd64.deb
 
 Start **Linux Apple Music Player** from the app grid and sign in with your Apple ID.
 The first launch downloads the Widevine DRM module from Google (a few seconds).
+
+## Sync with iPhone (experimental)
+
+Apple has no public way to upload your own music files to your Apple Music library: only Apple's own apps
+do it, with **Sync Library** turned on. On Linux the player borrows Apple Music for Windows, running in a
+Windows virtual machine managed by [WinBoat](https://github.com/winboat-org/winboat). The Windows window
+shows on your Ubuntu desktop only while a sync runs.
+
+One-time setup:
+
+1. Install Docker, FreeRDP 3 and WinBoat, add yourself to the `docker` group and **restart the computer**
+   (logging out is not enough):
+   ```bash
+   sudo apt install docker.io docker-compose-v2 freerdp3-x11 ./winboat-<version>-amd64.deb
+   sudo usermod -aG docker $USER
+   ```
+   (WinBoat's `.deb` is on its [Releases page](https://github.com/winboat-org/winboat/releases).)
+2. In WinBoat install Windows 11 and let it **share your home folder** with Windows.
+3. In Windows install **Apple Music** from the Microsoft Store, sign in, and turn on
+   **Settings → General → Sync Library**.
+
+Then, in the player: **Library → Add from computer** → **Add album folder…** or **Add songs…**.
+The player starts Windows if it is off, opens Apple Music and hands it the files through its
+"Automatically Add to Apple Music" folder; Apple Music adds them to your library and uploads them to iCloud.
+Keep the Apple Music window open until the cloud icons next to the songs are gone, then close it
+(and shut Windows down from the same panel if you like).
+
+- MP3, M4A/AAC, AIFF and WAV are sent as they are. FLAC, OGG, Opus, WMA, APE and WavPack are converted with
+  `ffmpeg` (lossless → ALAC, lossy → AAC 256 kb/s), keeping tags and the embedded cover.
+- The player reads the Windows user and password WinBoat created from `~/.winboat/docker-compose.yml`
+  and passes the password to FreeRDP on stdin, so it never shows up in the process list.
+- This is experimental: it depends on WinBoat (beta) and on Apple Music for Windows keeping its
+  "Automatically Add" folder.
 
 ## Uninstall
 
@@ -65,6 +99,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.4.0**: **Sync with iPhone (experimental)**: Library → Add from computer adds songs and album folders from your disk to your Apple Music library (and so to your iPhone) through Apple Music for Windows in WinBoat. The player starts Windows when needed, shows the Apple Music window on the Ubuntu desktop, hands it the files and follows the import step by step; FLAC/OGG are converted to ALAC/AAC on the way.
 - **0.3.13**: in the Aurora theme the title bar is no longer a flat strip: the window's colour glow runs under it (turquoise from the top-left, violet at the bottom-right in dark; lavender-to-blue in light), like Linux iMessage and the rest of the series. The System theme is unchanged.
 - **0.3.12**: the start-up screen (and the window background while it loads) follows the system's light or dark style from the first moment. Electron learns GNOME's colour scheme only a moment after start, so the start-up screen was always light; the app now reads it itself (XDG portal, then gsettings) and follows changes after that.
 - **0.3.11**: your own playlists opened from Home (or anywhere that shows them by their shared catalog link) open as the library copy, so "Remove from Playlist" works there too.

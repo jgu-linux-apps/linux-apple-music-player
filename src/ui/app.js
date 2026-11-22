@@ -26,7 +26,21 @@
     copied: 'Skopiowano link', songsN: (n) => n + (n === 1 ? ' utwór' : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20)) ? ' utwory' : ' utworów'),
     min: ' min', title: 'Tytuł', artist: 'Wykonawca', album: 'Album', time: 'Czas', topSongs: 'Najpopularniejsze utwory', fullAlbums: 'Albumy', singles: 'Single i EP',
     sizer: 'Przeciągnij, aby zmienić szerokość · dwuklik lub Ctrl+B chowa i pokazuje pasek',
-    playErr: 'Nie można odtworzyć utworu', error: 'Błąd: ', volume: 'Głośność', repeat: 'Powtarzaj', prev: 'Poprzedni', next: 'Następny', close: 'Zamknij (Esc)', stations: 'Stacje', radio: 'Radio', albumK: 'Album', playlistK: 'Playlista'
+    playErr: 'Nie można odtworzyć utworu', error: 'Błąd: ', volume: 'Głośność', repeat: 'Powtarzaj', prev: 'Poprzedni', next: 'Następny', close: 'Zamknij (Esc)', stations: 'Stacje', radio: 'Radio', albumK: 'Album', playlistK: 'Playlista',
+    wbNav: 'Dodaj z komputera', wbTitle: 'Synchronizuj z iPhonem', wbExp: 'Eksperymentalne',
+    wbIntro: 'Dodaje utwory i albumy z dysku do Twojej biblioteki Apple Music, więc są też na iPhonie. Działa przez Apple Music dla Windows w WinBoat: zaloguj się tam raz i włącz Ustawienia → Ogólne → „Synchronizuj bibliotekę”.',
+    wbFolder: 'Dodaj folder albumu…', wbFiles: 'Dodaj utwory…', wbChecking: 'Sprawdzam WinBoat…', wbReady: 'WinBoat gotowy', wbReadyOn: 'WinBoat gotowy · Windows działa', wbReadyOff: 'WinBoat gotowy · Windows wyłączony (włączy się sam)',
+    wbFormats: 'MP3, M4A, AAC, AIFF i WAV idą bez zmian; FLAC i OGG zamieniane są na ALAC / AAC (ffmpeg).',
+    wbS_prepare: 'Przygotowuję pliki', wbS_boot: 'Uruchamiam Windows (WinBoat)…', wbS_connect: 'Łączę z Windows…', wbS_start: 'Otwieram Apple Music…', wbS_copy: 'Przekazuję pliki do Windows',
+    wbS_import: 'Apple Music dodaje utwory do biblioteki', wbS_uploading: 'Gotowe: utwory są w bibliotece',
+    wbUploadNote: 'Apple Music wysyła je teraz do iCloud. Zostaw jego okno otwarte, aż przy utworach znikną ikony chmurki (może to potrwać kilka minut), potem je zamknij. Utwory pojawią się na iPhonie i tutaj w Ostatnio dodanych.',
+    wbCloseWin: 'Zamknij okno Apple Music', wbStop: 'Wyłącz Windows', wbS_stopping: 'Wyłączam Windows…', wbS_stopped: 'Windows wyłączony', wbCancel: 'Przerwij',
+    wbSkipped: 'pominięte (brak ffmpeg lub błąd konwersji): ', wbBusy: 'Synchronizacja już trwa',
+    wbE: { dockerPerm: 'Brak dostępu do Dockera: dodaj się do grupy docker i uruchom komputer ponownie.', noDocker: 'Nie znaleziono Dockera. Zainstaluj WinBoat razem z Dockerem.',
+      noWinboat: 'Nie znaleziono maszyny WinBoat. Zainstaluj w WinBoat Windows, a w nim Apple Music.', noShare: 'WinBoat nie udostępnia katalogu domowego w Windows (opcja przy instalacji WinBoat).',
+      noFreerdp: 'Brak FreeRDP 3 (pakiet freerdp3-x11).', noAudio: 'Nie znaleziono plików audio.', noAutoFolder: 'Apple Music w Windows nie ma jeszcze biblioteki: otwórz go raz w WinBoat i zaloguj się.',
+      importTimeout: 'Apple Music nie przyjął wszystkich plików na czas.', bootTimeout: 'Windows nie uruchomił się w ciągu 5 minut.', rdpFailed: 'Nie udało się połączyć z Windows (RDP).',
+      sessionClosed: 'Okno Windows zostało zamknięte przed końcem.', cancelled: 'Przerwano.', dockerStop: 'Nie udało się wyłączyć Windows.' }
   } : {
     search: 'Search', appleMusic: 'Apple Music', home: 'Home', library: 'Library', recent: 'Recently Added', artists: 'Artists',
     albums: 'Albums', songs: 'Songs', playlists: 'Playlists', recentlyPlayed: 'Recently Played', heavy: 'Heavy Rotation', madeForYou: 'Made for You',
@@ -39,7 +53,21 @@
     copied: 'Link copied', songsN: (n) => n + (n === 1 ? ' song' : ' songs'),
     min: ' min', title: 'Title', artist: 'Artist', album: 'Album', time: 'Time', topSongs: 'Top Songs', fullAlbums: 'Albums', singles: 'Singles & EPs',
     sizer: 'Drag to resize · double-click or Ctrl+B hides and shows the sidebar',
-    playErr: 'Cannot play this song', error: 'Error: ', volume: 'Volume', repeat: 'Repeat', prev: 'Previous', next: 'Next', close: 'Close (Esc)', stations: 'Stations', radio: 'Radio', albumK: 'Album', playlistK: 'Playlist'
+    playErr: 'Cannot play this song', error: 'Error: ', volume: 'Volume', repeat: 'Repeat', prev: 'Previous', next: 'Next', close: 'Close (Esc)', stations: 'Stations', radio: 'Radio', albumK: 'Album', playlistK: 'Playlist',
+    wbNav: 'Add from computer', wbTitle: 'Sync with iPhone', wbExp: 'Experimental',
+    wbIntro: 'Adds songs and albums from your disk to your Apple Music library, so they are on your iPhone too. Works through Apple Music for Windows in WinBoat: sign in there once and turn on Settings → General → “Sync Library”.',
+    wbFolder: 'Add album folder…', wbFiles: 'Add songs…', wbChecking: 'Checking WinBoat…', wbReady: 'WinBoat ready', wbReadyOn: 'WinBoat ready · Windows is running', wbReadyOff: 'WinBoat ready · Windows is off (starts by itself)',
+    wbFormats: 'MP3, M4A, AAC, AIFF and WAV go as they are; FLAC and OGG are converted to ALAC / AAC (ffmpeg).',
+    wbS_prepare: 'Preparing files', wbS_boot: 'Starting Windows (WinBoat)…', wbS_connect: 'Connecting to Windows…', wbS_start: 'Opening Apple Music…', wbS_copy: 'Handing the files to Windows',
+    wbS_import: 'Apple Music is adding the songs to your library', wbS_uploading: 'Done: the songs are in your library',
+    wbUploadNote: 'Apple Music is now uploading them to iCloud. Keep its window open until the cloud icons next to the songs are gone (this can take a few minutes), then close it. The songs will show on your iPhone and here in Recently Added.',
+    wbCloseWin: 'Close Apple Music window', wbStop: 'Shut down Windows', wbS_stopping: 'Shutting down Windows…', wbS_stopped: 'Windows is off', wbCancel: 'Stop',
+    wbSkipped: 'skipped (no ffmpeg or conversion failed): ', wbBusy: 'A sync is already running',
+    wbE: { dockerPerm: 'No access to Docker: add yourself to the docker group and restart the computer.', noDocker: 'Docker not found. Install WinBoat together with Docker.',
+      noWinboat: 'No WinBoat machine found. Install Windows in WinBoat and Apple Music in it.', noShare: 'WinBoat does not share your home folder with Windows (an option when installing WinBoat).',
+      noFreerdp: 'FreeRDP 3 is missing (package freerdp3-x11).', noAudio: 'No audio files found.', noAutoFolder: 'Apple Music in Windows has no library yet: open it once in WinBoat and sign in.',
+      importTimeout: 'Apple Music did not take all the files in time.', bootTimeout: 'Windows did not start within 5 minutes.', rdpFailed: 'Could not connect to Windows (RDP).',
+      sessionClosed: 'The Windows window was closed before the end.', cancelled: 'Stopped.', dockerStop: 'Could not shut down Windows.' }
   };
 
   // ======================= helpers =======================
@@ -80,6 +108,7 @@
     expand: 'M4 4h6v2H6v4H4zm10 0h6v6h-2V6h-4zM4 14h2v4h4v2H4zm14 4v-4h2v6h-6v-2z',
     chev: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
     gear: 'M19.1 12.9a7 7 0 0 0 0-1.8l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7 7 0 0 0-1.6-.9L14.4 3a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4l-.4 2.5a7 7 0 0 0-1.6.9l-2.4-1a.5.5 0 0 0-.6.2L2.7 8.9a.5.5 0 0 0 .1.6l2 1.6a7 7 0 0 0 0 1.8l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3c.1.2.4.3.6.2l2.4-1c.5.4 1 .7 1.6.9l.4 2.5c0 .2.3.4.5.4h3.8c.2 0 .5-.2.5-.4l.4-2.5a7 7 0 0 0 1.6-.9l2.4 1c.2.1.5 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z',
+    upload: 'M12 3l5 5h-3.5v6h-3V8H7zM5 16h2v3h10v-3h2v5H5z',
     folder: 'M3 6.5A2.5 2.5 0 0 1 5.5 4h4.2l2 2h6.8A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z',
     radio: 'M4 8h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1zm2.6-1.6L15.9 3l.7 1.9L10 7.3zM8 11a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm7 1v1.5h4V12zm0 3v1.5h4V15z'
   };
@@ -251,8 +280,11 @@
   const navItem = (r, t, i) => el('button', { class: 'nitem', 'data-r': r, onclick: () => go(r, {}, { root: true }) },
     icon(i), el('span', { text: t }), el('span', { class: 'ncount' }));
   group('am', S.appleMusic).body.append(navItem('home', S.home, 'home'), navItem('radio', S.radio, 'radio'));
-  group('lib', S.library).body.append(navItem('recent', S.recent, 'clock'), navItem('artists', S.artists, 'mic'),
+  const gLib = group('lib', S.library);
+  gLib.body.append(navItem('recent', S.recent, 'clock'), navItem('artists', S.artists, 'mic'),
     navItem('albums', S.albums, 'album'), navItem('songs', S.songs, 'note'));
+  const wbNav = el('button', { class: 'nitem wbnav', title: S.wbTitle + ' · ' + S.wbExp, onclick: () => wbSheet.open() }, icon('upload'), el('span', { text: S.wbNav }));
+  gLib.body.appendChild(wbNav);
   const gPl = group('pl', S.playlists);
   const plBox = gPl.body;
   let nowPl = null;  // id of the playlist that is playing (marked in the sidebar)
@@ -404,6 +436,62 @@
     $('#side').insertBefore(btn, $('#ver'));
     sync();
     return { sync, open };
+  })();
+
+  // ---- Sync with iPhone (experimental): own files → Apple Music for Windows in WinBoat → iCloud ----
+  const wbSheet = (() => {
+    const box = el('div', { class: 'sheet' });
+    const card = el('div', { class: 'sheetcard wbcard', role: 'dialog' });
+    box.appendChild(card); $('#app').appendChild(box);
+    const stat = el('div', { class: 'wbstat' }), step = el('div', { class: 'wbstep' }), bar = el('div', { class: 'wbbar' }, el('i'));
+    const note = el('div', { class: 'pnote wbnote' }), acts = el('div', { class: 'prow btns wbacts' });
+    const bFolder = el('button', { class: 'btn', text: S.wbFolder, onclick: () => pick('folder') });
+    const bFiles = el('button', { class: 'btn sec', text: S.wbFiles, onclick: () => pick('files') });
+    const bCancel = el('button', { class: 'btn sec', text: S.wbCancel, onclick: () => window.lamp.wb('cancel') });
+    const bClose = el('button', { class: 'btn', text: S.wbCloseWin, onclick: () => window.lamp.wb('close') });
+    const bStop = el('button', { class: 'btn sec', text: S.wbStop, onclick: () => window.lamp.wb('stop') });
+    card.append(
+      el('div', { class: 'sheethead' }, el('h2', { text: S.wbTitle }), el('span', { class: 'wbexp', text: S.wbExp }),
+        el('button', { class: 'ib', title: S.close, onclick: () => close() }, icon('close'))),
+      el('div', { class: 'pnote', text: S.wbIntro }), stat,
+      el('div', { class: 'prow btns' }, bFolder, bFiles),
+      el('div', { class: 'pnote', text: S.wbFormats }),
+      el('div', { class: 'wbprog' }, step, bar, note), acts);
+    let running = false, uploaded = false;
+    const errText = (e) => (S.wbE[String(e).split(':')[0]] || (S.error + e));
+    function setBtns() { bFolder.disabled = bFiles.disabled = running; }
+    async function check() {
+      stat.className = 'wbstat'; stat.textContent = S.wbChecking;
+      const s = await window.lamp.wbStatus();
+      if (s.ready) { stat.classList.add('ok'); stat.textContent = s.running ? S.wbReadyOn : S.wbReadyOff; }
+      else { stat.classList.add('bad'); stat.textContent = errText(s.problem); }
+      bFolder.disabled = bFiles.disabled = running || !s.ready;
+    }
+    async function pick(kind) {
+      const r = await window.lamp.wbPick(kind);
+      if (r && r.error === 'busy') toast(S.wbBusy);
+    }
+    function update(st) {
+      if (!st) return;
+      card.classList.add('active');
+      const n = st.total ? ` ${st.step === 'copy' ? (st.copied || 0) : (st.done || 0)} / ${st.total}` : '';
+      const pct = st.total ? Math.round(100 * (st.step === 'copy' ? (st.copied || 0) : (st.done || 0)) / st.total) : 0;
+      bar.firstChild.style.width = (['boot', 'connect', 'start'].includes(st.step) ? 8 : pct) + '%';
+      bar.classList.toggle('busy', ['boot', 'connect', 'start'].includes(st.step));
+      note.textContent = st.skipped ? S.wbSkipped + st.skipped : '';
+      acts.replaceChildren();
+      running = !['uploading', 'error', 'stopped'].includes(st.step);
+      if (st.step === 'error') { step.className = 'wbstep bad'; step.textContent = errText(st.error); bar.firstChild.style.width = '0%'; acts.append(bStop); check(); }
+      else if (st.step === 'uploading') { uploaded = true; step.className = 'wbstep ok'; step.textContent = S.wbS_uploading + n; note.textContent = S.wbUploadNote + (st.skipped ? ' · ' + S.wbSkipped + st.skipped : ''); acts.append(bClose, bStop); memo.clear(); }
+      else if (st.step === 'stopping' || st.step === 'stopped') { step.className = 'wbstep'; step.textContent = S['wbS_' + st.step]; bar.firstChild.style.width = '0%'; if (st.step === 'stopped') check(); }
+      else { step.className = 'wbstep'; step.textContent = (S['wbS_' + st.step] || st.step) + (st.step === 'prepare' || st.step === 'import' || st.step === 'copy' ? n : ''); acts.append(bCancel); }
+      setBtns();
+      if (!box.classList.contains('open')) open();
+    }
+    function open() { box.classList.add('open'); if (!running) check(); }
+    function close() { box.classList.remove('open'); }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && box.classList.contains('open')) { close(); e.stopPropagation(); } }, true);
+    return { open, update };
   })();
 
   // ======================= renderers =======================
@@ -828,6 +916,7 @@
     if (name === 'layout') { document.body.classList.toggle('dock', arg === 'dock'); return; }
     if (name === 'accent') { setAccent(arg); return; }
     if (name === 'settings') { prefs.sync(arg); return; }
+    if (name === 'winboat') { wbSheet.update(arg); return; }
     if (!mk) return;
     try {
       switch (name) {

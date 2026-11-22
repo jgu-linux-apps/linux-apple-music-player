@@ -8,5 +8,8 @@ contextBridge.exposeInMainWorld('lamp', {
   reload: () => ipcRenderer.send('lamp:reload'),
   action: (a) => ipcRenderer.send('lamp:action', a),
   openExternal: (u) => ipcRenderer.send('lamp:open-external', u),
+  wbStatus: () => ipcRenderer.invoke('lamp:wb-status'),
+  wbPick: (kind) => ipcRenderer.invoke('lamp:wb-pick', kind),
+  wb: (a) => ipcRenderer.send('lamp:wb', a),
   onCommand: (cb) => ipcRenderer.on('lamp:cmd', (_e, c, a) => cb(c, a))
 });

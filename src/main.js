@@ -471,6 +471,26 @@ ipcMain.on('lamp:setting', (_e, k, v) => {
   else if (['notifications', 'closeToTray', 'startHidden'].includes(k)) applySetting(k, !!v);
 });
 ipcMain.on('lamp:action', (_e, a) => { if (a === 'signOut') signOutAndClear(); });
+// ---------- WinBoat bridge (experimental): own files → Apple Music for Windows → iCloud / iPhone ----------
+let wbBridge = null;
+const wb = () => wbBridge || (wbBridge = require('./winboat').createBridge({ onState: (st) => send('winboat', st), log: (...a) => console.log('[winboat]', ...a) }));
+ipcMain.handle('lamp:wb-status', () => wb().status());
+ipcMain.handle('lamp:wb-pick', async (_e, kind) => {
+  if (wb().busy) return { error: 'busy' };
+  const folder = kind === 'folder';
+  const r = await dialog.showOpenDialog(win, {
+    title: folder ? T.wbPickFolder : T.wbPickFiles,
+    properties: folder ? ['openDirectory', 'multiSelections'] : ['openFile', 'multiSelections'],
+    filters: folder ? undefined : [{ name: T.wbAudio, extensions: ['mp3', 'm4a', 'aac', 'aif', 'aiff', 'wav', 'flac', 'ogg', 'opus', 'wma', 'ape', 'wv'] }]
+  });
+  if (r.canceled || !r.filePaths.length) return { canceled: true };
+  return wb().add(r.filePaths);
+});
+ipcMain.on('lamp:wb', (_e, a) => {
+  if (a === 'close') wb().closeWindow();
+  else if (a === 'stop') wb().stopWindows();
+  else if (a === 'cancel') wb().cancel();
+});
 ipcMain.on('lamp:reload', () => loadUI());
 ipcMain.on('lamp:open-external', (_e, url) => { if (/^https:\/\//.test(url)) shell.openExternal(url); });
 ipcMain.on('lamp:state', async (_e, s) => {

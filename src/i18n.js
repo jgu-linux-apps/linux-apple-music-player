@@ -32,6 +32,8 @@ const STR = {
     ok: 'Sign out',
     drmWait: 'Preparing DRM module (first launch may take a moment)…',
     drmFail: 'The Widevine module could not be loaded. Only previews may play. Check your internet connection and restart the app.'
+,
+    wbPickFiles: 'Choose songs to add to Apple Music', wbPickFolder: 'Choose album folders to add to Apple Music', wbAudio: 'Audio files'
   },
   pl: {
     show: 'Pokaż okno',
@@ -64,6 +66,8 @@ const STR = {
     ok: 'Wyloguj',
     drmWait: 'Przygotowuję moduł DRM (pierwsze uruchomienie może chwilę potrwać)…',
     drmFail: 'Nie udało się załadować modułu Widevine. Mogą grać tylko fragmenty utworów. Sprawdź internet i uruchom aplikację ponownie.'
+ ,
+    wbPickFiles: 'Wybierz utwory do dodania do Apple Music', wbPickFolder: 'Wybierz foldery albumów do dodania do Apple Music', wbAudio: 'Pliki audio'
   }
 };
 

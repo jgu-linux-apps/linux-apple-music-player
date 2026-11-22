@@ -5,7 +5,7 @@ V=$(node -p "require('./app/package.json').version"); P=linux-apple-music-player
 B=build/${P}_${V}_amd64
 rm -rf build && mkdir -p $B/DEBIAN $B/opt/$P/resources/app $B/usr/bin $B/usr/share/applications $B/etc/apparmor.d $B/usr/share/doc/$P
 cp -a /home/claude/dl/electron/. $B/opt/$P/ && mv $B/opt/$P/electron $B/opt/$P/$P && rm -f $B/opt/$P/resources/default_app.asar
-cp -a app/{package.json,main.js,preload.js,mpris.js,sni.js,i18n.js,ui,assets,node_modules} $B/opt/$P/resources/app/
+cp -a app/{package.json,main.js,preload.js,mpris.js,sni.js,i18n.js,winboat.js,ui,assets,node_modules} $B/opt/$P/resources/app/
 for s in 48 64 128 256 512; do mkdir -p $B/usr/share/icons/hicolor/${s}x${s}/apps; cp app/assets/icon-light-$s.png $B/usr/share/icons/hicolor/${s}x${s}/apps/$P.png; done
 for s in 22 32 48 64; do mkdir -p $B/usr/share/icons/hicolor/${s}x${s}/apps; rsvg-convert -w $s app/assets/tray/$P-tray4.svg -o $B/usr/share/icons/hicolor/${s}x${s}/apps/$P-tray4.png; done
 mkdir -p $B/usr/share/icons/hicolor/scalable/apps && cp app/assets/icon-light.svg $B/usr/share/icons/hicolor/scalable/apps/$P.svg

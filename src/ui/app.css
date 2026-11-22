@@ -464,3 +464,28 @@ body.side-hidden #side { visibility: hidden; border-right: none; }
 body.side-hidden .sizer { left: 0; width: 12px; }
 body.side-hidden .sizer::after { left: 4px; background: var(--accent); }
 body.sizing, body.sizing * { cursor: col-resize !important; user-select: none !important; }
+
+/* ---- Sync with iPhone (experimental, WinBoat) ---- */
+.wbnav svg { color: var(--fg2); }
+.wbcard { width: min(560px, calc(100vw - 32px)); }
+.wbcard .sheethead { gap: 10px; }
+.wbexp { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); margin-right: auto; }
+.wbstat { margin: 10px 0 4px; font-size: 13px; color: var(--fg2); }
+.wbstat::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; background: var(--fg3); vertical-align: 1px; }
+.wbstat.ok::before { background: #34c759; }
+.wbstat.bad { color: #e5484d; }
+.wbstat.bad::before { background: #e5484d; }
+.wbprog { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.wbcard.active .wbprog { display: block; }
+.wbstep { font-weight: 650; margin-bottom: 8px; }
+.wbstep.ok { color: #34c759; }
+.wbstep.bad { color: #e5484d; }
+.wbbar { height: 6px; border-radius: 3px; background: var(--hover); overflow: hidden; }
+.wbbar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 3px; transition: width .3s; }
+body.aurora .wbbar i { background: var(--grad); }
+.wbbar.busy i { width: 30% !important; animation: wbslide 1.2s ease-in-out infinite; }
+@keyframes wbslide { from { transform: translateX(-100%); } to { transform: translateX(340%); } }
+.wbnote:empty { display: none; }
+.wbacts:empty { display: none; }
+.btn:disabled { opacity: .45; pointer-events: none; }
