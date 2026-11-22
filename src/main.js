@@ -357,41 +357,21 @@ function rebuildTray() {
   const tpl = [
     { label: short, enabled: !!m, icon: m ? coverPng : null, click: () => showWindow() },
     { type: 'separator' },
-    { label: playing ? T.pause : T.play, click: () => send('toggle') },
-    { label: T.next, click: () => send('next') },
-    { label: T.previous, click: () => send('previous') },
+    { label: playing ? T.pause : T.play, iconName: playing ? 'media-playback-pause-symbolic' : 'media-playback-start-symbolic', click: () => send('toggle') },
+    { label: T.next, iconName: 'media-skip-forward-symbolic', click: () => send('next') },
+    { label: T.previous, iconName: 'media-skip-backward-symbolic', click: () => send('previous') },
     { type: 'separator' },
-    { label: T.coverView, click: () => { showWindow(); send('cover', true); } },
-    { label: visible ? T.hide : T.show, click: () => (visible ? win.hide() : showWindow()) },
+    { label: T.coverView, iconName: 'view-fullscreen-symbolic', click: () => { showWindow(); send('cover', true); } },
+    { label: visible ? T.hide : T.show, iconName: visible ? 'window-minimize-symbolic' : 'window-restore-symbolic', click: () => (visible ? win.hide() : showWindow()) },
+    // themes, layout, notifications, start-up and sign-out live in Settings
+    { label: T.settings + '…', iconName: 'emblem-system-symbolic', click: () => { showWindow(); send('openSettings'); } },
     { type: 'separator' },
-    { label: T.notifications, type: 'checkbox', checked: settings.notifications, click: () => toggleSetting('notifications') },
-    { label: T.closeToTray, type: 'checkbox', checked: settings.closeToTray, click: () => toggleSetting('closeToTray') },
-    { label: T.startHidden, type: 'checkbox', checked: settings.startHidden, click: () => toggleSetting('startHidden') },
-    { type: 'separator' },
-    // sni.js (our tray) draws a flat menu only — no submenus — so the theme choice is two radio items
-    ...['system', 'aurora'].map((val) => ({
-      label: `${T.theme}: ${val === 'aurora' ? T.themeAurora : T.themeSystem}`, type: 'radio',
-      checked: (settings.theme || 'system') === val,
-      click: () => { settings.theme = val; saveSettings(); send('theme', val); applyTitleBar(); rebuildTray(); } })),
-    { type: 'separator' },
-    // layout: Dock (default: bigger, large player at the bottom, collapsible menu) or Classic (the look before 0.3)
-    ...['dock', 'classic'].map((val) => ({
-      label: `${T.layout}: ${val === 'dock' ? T.layoutDock : T.layoutClassic}`, type: 'radio',
-      checked: (settings.layout || 'dock') === val,
-      click: () => { settings.layout = val; saveSettings(); send('layout', val); rebuildTray(); } })),
-    { type: 'separator' },
-    { label: T.reload, click: loadUI },
-    { label: T.signOut, click: signOutAndClear },
-    { type: 'separator' },
-    { label: `${APP_NAME} ${pkg.version} (${pkg.releaseDate})`, enabled: false },
-    { label: 'Created by: JGu', enabled: false },
-    { label: 'Supported by Claude', enabled: false },
-    { label: T.quit, click: () => { quitting = true; app.quit(); } }
+    { label: T.quit, iconName: 'application-exit-symbolic', click: () => { quitting = true; app.quit(); } }
   ];
   const tip = m ? `${playing ? '▶' : '❚❚'} ${label}` : APP_NAME;
   if (sni) { sni.setMenu(tpl); sni.setTooltip(tip); return; }
   tray.setContextMenu(Menu.buildFromTemplate(tpl.map((t) => {
-    const o = Object.assign({}, t);
+    const o = Object.assign({}, t); delete o.iconName;
     if (o.icon) o.icon = nativeImage.createFromBuffer(o.icon).resize({ width: 32, height: 32 }); else delete o.icon;
     return o;
   })));

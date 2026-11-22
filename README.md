@@ -1,14 +1,14 @@
 # Linux Apple Music Player
 
-**Version 0.5.4 — 2026-11-22**
+**Version 0.5.5 — 2026-11-22**
 
 A fast, lightweight Apple Music player for Ubuntu. It has its own interface built directly on the Apple Music API; Apple's heavy web player is not loaded. Audio plays through Apple's MusicKit with Widevine, so full-length songs work with your subscription.
 
 ## Features
 
 - Own lightweight UI, styled like Apple Music for Windows: sidebar, content area and player bar
-- Two themes (Settings or tray menu → Theme): **System**, which uses your Ubuntu accent colour, and **Aurora**, the shared look of the JGu Linux Apps series; both follow light/dark
-- Two layouts (Settings or tray menu → Layout): **Dock** (default) – bigger text, a large player at the bottom with the cover, title and artist, progress along its whole width, a sidebar with groups that fold, counts and playlist folders, album headers on a blurred cover; **Classic** – the look before 0.3
+- Two themes (Settings → Theme): **System**, which uses your Ubuntu accent colour, and **Aurora**, the shared look of the JGu Linux Apps series; both follow light/dark
+- Two layouts (Settings → Layout): **Dock** (default) – bigger text, a large player at the bottom with the cover, title and artist, progress along its whole width, a sidebar with groups that fold, counts and playlist folders, album headers on a blurred cover; **Classic** – the look before 0.3
 - Sign in with your Apple ID (Apple Music subscription required)
 - Home: recently played, heavy rotation and recommendations
 - Radio: your personal station and Apple Music live radio
@@ -21,12 +21,12 @@ A fast, lightweight Apple Music player for Ubuntu. It has its own interface buil
 - Synced lyrics in the cover view; click a line to jump to it
 - Keyboard: Space play/pause, Ctrl+←/→ previous/next, Alt+← back, Esc closes panels
 - Tray icon in the app's own style, light or dark following the system theme
-- Tray menu with the current song and a small album cover, play/pause, next, previous
+- Tray menu with icons: the current song with a small album cover, play/pause, next, previous, cover view, Settings…
 - Mouse wheel over the tray icon changes the volume
 - Closing the window hides it to the tray; quit from the tray menu
 - Ubuntu media controls (MPRIS): song, cover and controls in the top-bar menu and lock screen
 - Media keys and `playerctl` work
-- Optional notification for every new song, with cover (toggle in Settings or the tray menu)
+- Optional notification for every new song, with cover (toggle in Settings)
 - Light/dark theme follows the system; app and tray icons switch with it
 - Dock right-click actions: Play/Pause, Next, Previous
 - Polish UI when the system language is Polish, English otherwise
@@ -106,6 +106,7 @@ The app uses the public access key of Apple's own web player, as other third-par
 
 ## Version history
 
+- **0.5.5**: a small see-through **Search** field at the top of Albums, Artists and Songs filters the list as you type (several words must all match, accents ignored, Esc clears). The tray menu is shorter and has icons: the song, Play/Pause, Next, Previous, Cover view, Show window, **Settings…** and Quit — themes, layout, notifications and the other options are in Settings.
 - **0.5.4**: the artist page no longer shows "Error: HTTP 404" under Your Library: your albums of the artist come from your library (including albums that exist only through their songs), and the section is left out when there are none. Recently Added includes such song albums too and is sorted by the date you added things, newest first.
 - **0.5.3**: the numbers left the sidebar; Artists, Albums and Songs show their count small next to the page title instead (Albums counts the albums built from songs too).
 - **0.5.2**: Albums also lists albums that exist in your library only through their songs — as happens with songs added from a computer and matched to the Apple Music catalog (e.g. by Sync with iPhone); music.apple.com shows them the same way. They open as a normal album page and play in track order.

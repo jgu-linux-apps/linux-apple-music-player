@@ -83,10 +83,11 @@ function createSni({ id, title, onActivate, onScroll }) {
       p['toggle-state'] = new Variant('i', it.checked ? 1 : 0);
     }
     if (it.icon) p['icon-data'] = new Variant('ay', it.icon);
+    else if (it.iconName) p['icon-name'] = new Variant('s', it.iconName);   // theme icon, follows the panel colours
     return p;
   }
   function sig(it) {
-    return JSON.stringify([it.type || 'standard', it.label || '', it.enabled !== false, !!it.checked, it.icon ? it.icon.length + ':' + it.icon.subarray(0, 64).toString('base64') + it.icon.subarray(-64).toString('base64') : '']);
+    return JSON.stringify([it.type || 'standard', it.label || '', it.enabled !== false, !!it.checked, it.iconName || '', it.icon ? it.icon.length + ':' + it.icon.subarray(0, 64).toString('base64') + it.icon.subarray(-64).toString('base64') : '']);
   }
   function filter(p, names) {
     if (!names || !names.length) return p;

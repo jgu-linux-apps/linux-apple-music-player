@@ -15,7 +15,7 @@
   setAccent(cfg.accent);
   const PL = cfg.lang === 'pl';
   const S = PL ? {
-    search: 'Szukaj', appleMusic: 'Apple Music', home: 'Główna', library: 'Biblioteka', recent: 'Ostatnio dodane', artists: 'Wykonawcy',
+    search: 'Szukaj', filter: 'Szukaj', appleMusic: 'Apple Music', home: 'Główna', library: 'Biblioteka', recent: 'Ostatnio dodane', artists: 'Wykonawcy',
     albums: 'Albumy', songs: 'Utwory', playlists: 'Playlisty', recentlyPlayed: 'Ostatnio odtwarzane', heavy: 'Często słuchane', madeForYou: 'Dla Ciebie',
     play: 'Odtwórz', shuffle: 'Losowo', playNext: 'Odtwórz jako następny', playLater: 'Odtwórz później', addLib: 'Dodaj do biblioteki',
     addPl: 'Dodaj do playlisty', goAlbum: 'Przejdź do albumu', goArtist: 'Przejdź do wykonawcy', copyLink: 'Kopiuj link', queue: 'Następne', history: 'Odtworzone',
@@ -49,7 +49,7 @@
       importTimeout: 'Apple Music nie przyjął wszystkich plików na czas.', bootTimeout: 'Windows nie uruchomił się w ciągu 5 minut.', rdpFailed: 'Nie udało się połączyć z Windows (RDP).',
       sessionClosed: 'Okno Windows zostało zamknięte przed końcem.', cancelled: 'Przerwano.', dockerStop: 'Nie udało się wyłączyć Windows.', noPkgs: 'Brakuje składników: zainstaluj je poniżej.', noGroup: 'Nie masz dostępu do Dockera: zainstaluj składniki poniżej.', needReboot: 'Uruchom komputer ponownie, żeby zadziałał dostęp do Dockera.', noAppleMusic: 'W Windows nie ma Apple Music: zainstaluj go poniżej.', authCancelled: 'Anulowano okno z hasłem.', installFailed: 'Instalacja składników nie powiodła się (sprawdź internet i apt).', noWinboatDeb: 'Nie znaleziono paczki WinBoat w jego wydaniach na GitHubie.', downloadSize: 'Pobieranie WinBoat nie powiodło się.', amInstallFailed: 'Nie udało się zainstalować Apple Music (Sklep Microsoft). Spróbuj ręcznie w WinBoat.', badUser: 'Nietypowa nazwa użytkownika.' }
   } : {
-    search: 'Search', appleMusic: 'Apple Music', home: 'Home', library: 'Library', recent: 'Recently Added', artists: 'Artists',
+    search: 'Search', filter: 'Search', appleMusic: 'Apple Music', home: 'Home', library: 'Library', recent: 'Recently Added', artists: 'Artists',
     albums: 'Albums', songs: 'Songs', playlists: 'Playlists', recentlyPlayed: 'Recently Played', heavy: 'Heavy Rotation', madeForYou: 'Made for You',
     play: 'Play', shuffle: 'Shuffle', playNext: 'Play Next', playLater: 'Play Later', addLib: 'Add to Library',
     addPl: 'Add to Playlist', goAlbum: 'Go to Album', goArtist: 'Go to Artist', copyLink: 'Copy Link', queue: 'Playing Next', history: 'History',
@@ -123,6 +123,7 @@
     chev: 'M7.4 8.6 12 13.2l4.6-4.6L18 10l-6 6-6-6z',
     gear: 'M19.1 12.9a7 7 0 0 0 0-1.8l2-1.6a.5.5 0 0 0 .1-.6l-1.9-3.3a.5.5 0 0 0-.6-.2l-2.4 1a7 7 0 0 0-1.6-.9L14.4 3a.5.5 0 0 0-.5-.4h-3.8a.5.5 0 0 0-.5.4l-.4 2.5a7 7 0 0 0-1.6.9l-2.4-1a.5.5 0 0 0-.6.2L2.7 8.9a.5.5 0 0 0 .1.6l2 1.6a7 7 0 0 0 0 1.8l-2 1.6a.5.5 0 0 0-.1.6l1.9 3.3c.1.2.4.3.6.2l2.4-1c.5.4 1 .7 1.6.9l.4 2.5c0 .2.3.4.5.4h3.8c.2 0 .5-.2.5-.4l.4-2.5a7 7 0 0 0 1.6-.9l2.4 1c.2.1.5 0 .6-.2l1.9-3.3a.5.5 0 0 0-.1-.6zM12 15.6a3.6 3.6 0 1 1 0-7.2 3.6 3.6 0 0 1 0 7.2z',
     upload: 'M12 3l5 5h-3.5v6h-3V8H7zM5 16h2v3h10v-3h2v5H5z',
+    find: 'M10 3a7 7 0 0 1 5.6 11.2l5.1 5.1-1.4 1.4-5.1-5.1A7 7 0 1 1 10 3zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10z',
     folder: 'M3 6.5A2.5 2.5 0 0 1 5.5 4h4.2l2 2h6.8A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z',
     radio: 'M4 8h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1zm2.6-1.6L15.9 3l.7 1.9L10 7.3zM8 11a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm7 1v1.5h4V12zm0 3v1.5h4V15z'
   };
@@ -374,6 +375,20 @@
         if (n != null) { counts[r] = n; showCount(r); }
       }).catch(() => {});
     }
+  }
+  // small filter field at the right of a page title: hides the cards / rows whose text does not match,
+  // also the ones loaded later while scrolling (Albums, Artists, Songs)
+  function headFilter(h, box) {
+    const inp = el('input', { type: 'search', placeholder: S.filter, spellcheck: 'false', 'aria-label': S.filter });
+    const wrap = el('label', { class: 'vfilter' }, icon('find'), inp);
+    h.appendChild(wrap);
+    const norm2 = (x) => String(x || '').toLocaleLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    let q = [];
+    const apply = (nodes) => { for (const n of nodes) if (n.nodeType === 1) n.hidden = q.length > 0 && !q.every((w) => norm2(n.textContent).includes(w)); };
+    inp.addEventListener('input', () => { q = norm2(inp.value).split(/\s+/).filter(Boolean); apply(box.children); main.dispatchEvent(new Event('scroll')); });
+    inp.addEventListener('keydown', (e) => { if (e.key === 'Escape' && inp.value) { inp.value = ''; inp.dispatchEvent(new Event('input')); e.stopPropagation(); } });
+    new MutationObserver((ms) => { if (q.length) ms.forEach((m) => apply(m.addedNodes)); }).observe(box, { childList: true });
+    return inp;
   }
   function headCount(h, r) { h.appendChild(el('span', { class: 'hcount', 'data-r': r })); showCount(r); }
   $('.brand span').textContent = cfg.name;
@@ -700,6 +715,7 @@
       const hh = head(title, node); if (countKey) headCount(hh, countKey);
       const pad = el('div', { class: 'pad' }); node.appendChild(pad);
       const grid = el('div', { class: 'grid' }); pad.appendChild(grid);
+      if (countKey) headFilter(hh, grid);
       infinite(grid, path, (items) => { const f = document.createDocumentFragment(); items.forEach((i) => f.appendChild(card(i, cardOpts))); grid.appendChild(f); },
         () => pad.appendChild(el('div', { class: 'empty', text: S.empty })));
     };
@@ -769,9 +785,10 @@
 
   // Albums: Apple's list (scrolls on) plus the song albums at the end.
   ROUTES.albums = (node) => {
-    headCount(head(S.albums, node), 'albums');
+    const hA = head(S.albums, node); headCount(hA, 'albums');
     const pad = el('div', { class: 'pad' }); node.appendChild(pad);
     const grid = el('div', { class: 'grid' }); pad.appendChild(grid);
+    headFilter(hA, grid);
     infinite(grid, lib('/albums?limit=100'), (items) => {
       const f = document.createDocumentFragment(); items.forEach((i) => f.appendChild(card(i))); grid.appendChild(f);
     }, () => { if (!grid.children.length) pad.appendChild(el('div', { class: 'empty', text: S.empty })); });
@@ -783,9 +800,10 @@
   ROUTES.artists = gridView(S.artists, lib('/artists?limit=100&include=catalog'), { sub: '', size: 280 }, 'artists');
 
   ROUTES.songs = (node) => {
-    headCount(head(S.songs, node), 'songs');
+    const hS = head(S.songs, node); headCount(hS, 'songs');
     const tl = trackList([], { ctx: 'library-songs' });
     node.appendChild(tl.node);
+    headFilter(hS, tl.list);
     infinite(tl.list, lib('/songs?limit=100&include=albums'), tl.add, () => tl.node.appendChild(el('div', { class: 'empty', text: S.empty })));
   };
 
@@ -1091,6 +1109,7 @@
     if (name === 'layout') { document.body.classList.toggle('dock', arg === 'dock'); return; }
     if (name === 'accent') { setAccent(arg); return; }
     if (name === 'settings') { prefs.sync(arg); return; }
+    if (name === 'openSettings') { prefs.open(); return; }
     if (name === 'winboat') { wbSheet.update(arg); return; }
     if (!mk) return;
     try {
